@@ -66,7 +66,7 @@ notices. </p>
         are likely to find the specification changing out from under them in
         incompatible ways. Vendors interested in implementing this document
         before it eventually reaches the Candidate Recommendation stage SHOULD
-        join the aforementioned mailing lists and take part in the discussions.</p>
+        join the mailing lists below and take part in the discussions.</p>
 
 </section>
 
@@ -113,7 +113,7 @@ function refinePi(deadline) {
   currentEstimate = (4 * pointsInside / pointsTotal);
   textElement = document.getElementById("piEstimate");
   textElement.innerHTML="Pi Estimate: " + currentEstimate;
-  requestId = requestIdleCallback(refinePi);
+  requestId = window.requestIdleCallback(refinePi);
 }
 function start() {
   requestId = window.requestIdleCallback(refinePi);
@@ -138,7 +138,7 @@ After input processing, rendering and compositing for a given frame has been com
 </p>
 
 <p>
-Callbacks posted via the <code>requestIdleCallback</code> API become eligible to run during user agent defined idle periods. When an idle callback is run it will be given a deadline which corresponds to the end of the current idle period. The decision of what constitutes an idle period is user agent defined, however the expectation is that they occur in periods of quiescence where the browser expects to be idle.
+Callbacks posted via the <code>requestIdleCallback</code> API become eligible to run during user agent defined idle periods. When an idle callback is run it will be given a deadline which corresponds to the end of the current idle period. The decision as to what constitutes an idle period is user agent defined, however the expectation is that they occur in periods of quiescence where the browser expects to be idle.
 </p>
 
 <p>
@@ -157,7 +157,7 @@ Another example of an idle period is when the user agent is idle with no screen 
 
 <figure id='figure2'>
 <img alt="Example of an idle period when there are no pending frame updates." src="images/image00.png">
-<figcaption>Example of an idle period when there are no pending frame updates.</figcaption>
+<figcaption>Example of an idle period when there are no pending frame updates</figcaption>
 </figure>
 
 <p>
@@ -267,13 +267,13 @@ processor to use the more accurate mode with its associated higher power usage.
   </p>
 </li>
 <li><a href="http://www.w3.org/TR/html5/webappapis.html#queue-a-task">Queue a task</a> on the queue associated with the idle-task task
-source which performs the <a>invoke idle callback timeout algorithm</a>, passing <var>handle</var> and <var>document</var> as arguments.
+source, which performs the <a>invoke idle callback timeout algorithm</a>, passing <var>handle</var> and <var>document</var> as arguments.
 </li>
 </ol>
 </li>
 </ol>
 <p class="note">
-<code>requestIdleCallback</code> only schedules a single callback which will be executed during a single <a>idle period</a>. If the callback cannot complete its work before the given <var>deadline</var> then it should call <code>requestIdleCallback</code> again (which may be done from within the callback) to schedule a future callback for the continuation of its task, and exit immediately to return control back to the <a href='http://www.w3.org/TR/html5/webappapis.html#event-loop'>event loop</a>.
+<code>requestIdleCallback</code> only schedules a single callback, which will be executed during a single <a>idle period</a>. If the callback cannot complete its work before the given <var>deadline</var> then it should call <code>requestIdleCallback</code> again (which may be done from within the callback) to schedule a future callback for the continuation of its task, and exit immediately to return control back to the <a href='http://www.w3.org/TR/html5/webappapis.html#event-loop'>event loop</a>.
 </p>
 <p>
 The <code>cancelIdleCallback</code> method is used to cancel a previously made request to schedule an idle callback.
@@ -293,7 +293,7 @@ Let <var>document</var> be the <code>Window</code> object's
 </p>
 <p>The <code>deadline</code> attribute on an <code>IdleDeadline</code> object MUST return the deadline for the associated callback as a <code><a href="http://www.w3.org/TR/hr-time-2/#dom-domhighrestimestamp">DOMHighResTimeStamp</a></code>. [[!hr-time-2]]
 </p>
-<p>The <code>didTimeout</code> attribute on an <code>IdleDeadline</code> object MUST return <code>true</code> if the callback was invoked by the <a>invoke idle callbacks algorithm</a>, and <code>false</code> otherwise.
+<p>The <code>didTimeout</code> attribute on an <code>IdleDeadline</code> object MUST return <code>true</code> if the callback was invoked by the <a>invoke idle callback timeout algorithm</a>, and <code>false</code> otherwise.
 </p>
 <p>
 When the <code>isExceeded()</code> method on an <code>IdleDeadline</code> object is invoked, it MUST return <code>true</code> if the
@@ -307,11 +307,11 @@ Whenever the user agent assesses that a given <a href="http://www.w3.org/TR/html
 </p>
 
 <p class="note">
-The expectation is that the user agent will initiate idle periods regularly when the event loop becomes idle, for example, in between frames being rendering and regularly during times when no frames are being rendered. If the <code>Document</code>'s <code><a href="http://www.w3.org/TR/page-visibility/#dom-document-hidden">hidden</a></code> attribute
+The expectation is that the user agent will initiate idle periods regularly when the event loop becomes idle, for example, in between frame rendering and regularly during times when no frames are being rendered. If the <code>Document</code>'s <code><a href="http://www.w3.org/TR/page-visibility/#dom-document-hidden">hidden</a></code> attribute
 [[page-visibility]] is false then the user agent can throttle idle period generation, for example limiting the Document to one idle period every 10 seconds to optimize for power usage.
 </p>
 
-<p>When the user agent wishes to start an <a href="http://www.w3.org/TR/html5/webappapis.html#event-loop">event loop</a>'s idle period, the following steps are performed:</p>
+<p>When the user agent wishes to start an <a href="http://www.w3.org/TR/html5/webappapis.html#event-loop">event loop</a>'s idle period, the following steps MUST be performed:</p>
 <ol>
 <li>Let <var>last_deadline</var> be the last idle period deadline associated with the current event loop, or 0 if no previous deadline exists.</li>
 <li>If <var>last_deadline</var> is less than the current time:
@@ -327,22 +327,22 @@ be <var>now</var> + 50ms.</li>
 <li>For every <var>document</var> in <var>docs</var>, in any order, perform the following steps:
 <ol type="a">
 <li>Let <var>doclist</var> be <var>document</var>'s <a>list of idle request callbacks</a>.</li>
-<li>Let <var>list</var> be <var>document</var>'s <a>list of runnable idle callbacks</a>.</li>
-<li>Append all entries from <var>doclist</var> into <var>list</var> preserving order.</li>
+<li>Let <var>runlist</var> be <var>document</var>'s <a>list of runnable idle callbacks</a>.</li>
+<li>Append all entries from <var>doclist</var> into <var>runlist</var> preserving order.</li>
 <li>Clear <var>doclist</var>.</li>
-<li><a href="http://www.w3.org/TR/html5/webappapis.html#queue-a-task">Queue a task</a> which performs the steps defined in the <a>invoke idle callbacks algorithm</a> with parameters <var>list</var> and <var>deadline</var>.</li>
+<li><a href="http://www.w3.org/TR/html5/webappapis.html#queue-a-task">Queue a task</a> which performs the steps defined in the <a>invoke idle callbacks algorithm</a> with parameters <var>runlist</var> and <var>deadline</var>.</li>
 </ol>
 </li>
 <li>
 Save <var>deadline</var> as the last idle period deadline associated with the current event loop.</li>
 </ol>
-<p>The <a href="">task source</a> for these <a href="">tasks</a></var> is the <dfn>idle-task task source</dfn>.</p>
+<p>The <a href="http://www.w3.org/TR/2011/WD-html5-20110525/webappapis.html#task-source">task source</a> for these <a href="http://www.w3.org/TR/2011/WD-html5-20110525/webappapis.html#concept-task">tasks</a></var> is the <dfn>idle-task task source</dfn>.</p>
 
 <div class="note">
 <p>
 The time between <var>now</var> and <var>deadline</var> is referred to as the <dfn>idle period</dfn>. There can only be one
 idle period active at a given time. The idle period can end early
-if the user agent chooses determines that it is no longer idle. If
+if the user agent determines that it is no longer idle. If
 so, the next idle period cannot start until after <var>deadline</var>.
 </p>
 <p>
@@ -365,11 +365,11 @@ user input within the threshold of human perception.</p>
 <li>Let <var>now</var> be the current time.</li>
 <li>If <var>now</var> is less than <var>deadline</var>:
 <ol>
-<li>Pop <var>callback</var> from the <var>list</var>.</li>
+<li>Pop <var>callback</var> from the <var>runlist</var>.</li>
 <li>Let <var>deadlineArg</var> be an <code>IdleDeadline</code> constructed
 with the <code>deadline</code> attribute set to <var>deadline</var> and the <code>didTimeout</code> attribute set to <code>false</code></li>
 <li>Call <var>callback</var> with <var>deadlineArg</var> as its argument. If an uncaught runtime script error occurs, then <a href="http://www.w3.org/TR/html5/webappapis.html#report-the-error">report the error</a>.</li>
-<li id='s2.4'>If <var>list</var> is not empty, the user agent SHOULD <a href="http://www.w3.org/TR/html5/webappapis.html#queue-a-task">queue a task</a> which performs the steps in the <a>invoke idle callbacks algorithm</a> with parameters <var>list</var> and <var>deadline</var>.</li>
+<li id='s2.4'>If <var>runlist</var> is not empty, the user agent SHOULD <a href="http://www.w3.org/TR/html5/webappapis.html#queue-a-task">queue a task</a> which performs the steps in the <a>invoke idle callbacks algorithm</a> with parameters <var>runlist</var> and <var>deadline</var>.</li>
 </ol>
 </li>
 </ol>
