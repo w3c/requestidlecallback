@@ -105,7 +105,7 @@ function piStep() {
   return (Math.pow(x, 2) + Math.pow(y, 2) &lt; Math.pow(r, 2))
 }
 function refinePi(deadline) {
-  while (!deadline.isExpired()) {
+  while (!deadline.isExceeded()) {
     if (piStep())
       pointsInside++;
     pointsTotal++;
