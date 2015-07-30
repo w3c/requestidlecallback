@@ -297,7 +297,7 @@ Let <var>document</var> be the <code>Window</code> object's
 </p>
 <p>
 When the <code>isExceeded()</code> method on an <code>IdleDeadline</code> object is invoked, it MUST return <code>true</code> if the
- <code>deadline</code> attribute is greater than or equal to the time as returned by <code><a href="http://www.w3.org/TR/hr-time-2/#widl-Performance-now-DOMHighResTimeStamp">performance.now()</a></code>  [[!hr-time-2]], and <code>false</code> otherwise.
+ the time as returned by <code><a href="http://www.w3.org/TR/hr-time-2/#widl-Performance-now-DOMHighResTimeStamp">performance.now()</a></code> [[!hr-time-2]] is greater than or equal to the <code>deadline</code> attribute, and <code>false</code> otherwise.
  </p>
 </section>
 <section>
