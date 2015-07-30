@@ -314,9 +314,9 @@ The expectation is that the user agent will initiate idle periods regularly when
 <p>When the user agent wishes to start an <a href="http://www.w3.org/TR/html5/webappapis.html#event-loop">event loop</a>'s idle period, the following steps MUST be performed:</p>
 <ol>
 <li>Let <var>last_deadline</var> be the last idle period deadline associated with the current event loop, or 0 if no previous deadline exists.</li>
-<li>If <var>last_deadline</var> is less than the current time:
+<li>If <var>last_deadline</var> is greater than the current time:
 <ol>
-<li>Wait until current time is equal to <var>last_deadline</var>.</li>
+<li>Wait until the current time is greater than or equal to <var>last_deadline</var>.</li>
 </ol>
 </li>
 <li>Let <var>now</var> be the current time.</li>
