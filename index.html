@@ -105,7 +105,7 @@ function piStep() {
   return (Math.pow(x, 2) + Math.pow(y, 2) &lt; Math.pow(r, 2))
 }
 function refinePi(deadline) {
-  while (!deadline.isExceeded()) {
+  while (deadline.timeRemaining > 0) {
     if (piStep())
       pointsInside++;
     pointsTotal++;
@@ -227,10 +227,8 @@ partial interface Window {
 };
 
 interface IdleDeadline {
-  readonly attribute DOMHighResTimeStamp deadline;
+  readonly attribute DOMHighResTimeStamp timeRemaining;
   readonly attribute boolean didTimeout;
-
-  boolean isExceeded();
 };
 
 callback IdleRequestCallback = void (IdleDeadline deadline);
@@ -291,14 +289,19 @@ Let <var>document</var> be the <code>Window</code> object's
 <p class='note'>
 <code>cancelIdleCallback</code> might be invoked for an entry in the <var>document</var>'s <a>list of idle request callbacks</a> or the <var>document</var>'s <a>list of runnable idle callbacks</a> . In either case the entry should be removed from the list so that the callback does not run.
 </p>
-<p>The <code>deadline</code> attribute on an <code>IdleDeadline</code> object MUST return the deadline for the associated callback as a <code><a href="http://www.w3.org/TR/hr-time-2/#dom-domhighrestimestamp">DOMHighResTimeStamp</a></code>. [[!hr-time-2]]
-</p>
+<p>
+The <code>timeRemaining</code> attribute on an <code>IdleDeadline</code> object MUST return the amount of time remaining before the callback's deadline as a DOMHighResTimeStamp.
+This value is calculated by performing the following steps:
+<ol>
+<li>Let <var>deadline</var> be the deadline of the associated callback as a <code><a href="http://www.w3.org/TR/hr-time-2/#dom-domhighrestimestamp">DOMHighResTimeStamp</a></code>. [[!hr-time-2]]</li>
+<li>Let <var>now</var> be the value returned by <code><a href="http://www.w3.org/TR/hr-time-2/#widl-Performance-now-DOMHighResTimeStamp">performance.now()</a></code>. [[!hr-time-2]]</li>
+<li>Let <var>timeRemaining</var> be <var>deadline</var> - <var>now</var>.</li>
+<li>If <var>timeRemaining</var> is negative, set it to 0.</li>
+<li>Return <var>timeRemainng</var>.</li>
+</ol>
+ </p>
 <p>The <code>didTimeout</code> attribute on an <code>IdleDeadline</code> object MUST return <code>true</code> if the callback was invoked by the <a>invoke idle callback timeout algorithm</a>, and <code>false</code> otherwise.
 </p>
-<p>
-When the <code>isExceeded()</code> method on an <code>IdleDeadline</code> object is invoked, it MUST return <code>true</code> if the
- the time as returned by <code><a href="http://www.w3.org/TR/hr-time-2/#widl-Performance-now-DOMHighResTimeStamp">performance.now()</a></code> [[!hr-time-2]] is greater than or equal to the <code>deadline</code> attribute, and <code>false</code> otherwise.
- </p>
 </section>
 <section>
 <h2>Processing Model</h2>
@@ -367,7 +370,7 @@ user input within the threshold of human perception.</p>
 <ol>
 <li>Pop <var>callback</var> from the <var>runlist</var>.</li>
 <li>Let <var>deadlineArg</var> be an <code>IdleDeadline</code> constructed
-with the <code>deadline</code> attribute set to <var>deadline</var> and the <code>didTimeout</code> attribute set to <code>false</code></li>
+with the given <var>deadline</var> and the <code>didTimeout</code> attribute set to <code>false</code></li>
 <li>Call <var>callback</var> with <var>deadlineArg</var> as its argument. If an uncaught runtime script error occurs, then <a href="http://www.w3.org/TR/html5/webappapis.html#report-the-error">report the error</a>.</li>
 <li id='s2.4'>If <var>runlist</var> is not empty, the user agent SHOULD <a href="http://www.w3.org/TR/html5/webappapis.html#queue-a-task">queue a task</a> which performs the steps in the <a>invoke idle callbacks algorithm</a> with parameters <var>runlist</var> and <var>deadline</var>.</li>
 </ol>
@@ -385,7 +388,8 @@ The user agent is free to end an idle period early, even if <var>deadline</var> 
 <ol>
 <li>Remove <var>callback</var> from both the <var>document</var>'s <a>list of idle request callbacks</a> and
 the <var>document</var>'s <a>list of runnable idle callbacks</a>.</li>
-<li>Let <var>deadlineArg</var> be an <code>IdleDeadline</code> constructed with the <code>deadline</code> attribute set to -1 and the <code>didTimeout</code> attribute set to <code>true</code>.</li>
+<li>Let <var>now</var> be the current time.</li>
+<li>Let <var>deadlineArg</var> be an <code>IdleDeadline</code> constructed with a deadline of <var>now</var> and the <code>didTimeout</code> attribute set to <code>true</code>.</li>
 <li>Call <var>callback</var> with <var>deadlineArg</var> as its argument. If an uncaught runtime script error occurs, then <a href="http://www.w3.org/TR/html5/webappapis.html#report-the-error">report the error</a>.</li>
 </ol>
 </li>
@@ -394,5 +398,5 @@ the <var>document</var>'s <a>list of runnable idle callbacks</a>.</li>
 <section id="acknowledgements" class="appendix">
 <h2>Acknowledgments</h2>
 <p>
-The editors would like to thank the following people for contributing to this specification: Sami Kyostila, Alex Clarke, Boris Zbarsky, Marcos Caceres, Jonas Sicking, Robert O'Callahan, Todd Reifsteck, Tobin Titus, Ilya Grigorik, Lon Ingram and Philippe Le Hegaret.
+The editors would like to thank the following people for contributing to this specification: Sami Kyostila, Alex Clarke, Boris Zbarsky, Marcos Caceres, Jonas Sicking, Robert O'Callahan, Todd Reifsteck, Tobin Titus, Ilya Grigorik, Elliott Sprehn, Lon Ingram and Philippe Le Hegaret.
 </p>
