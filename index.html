@@ -151,6 +151,11 @@ One example of an idle period is the time between committing a given frame to th
 <figcaption>Example of an inter-frame idle period</figcaption>
 </figure>
 
+<p class="note">
+The user should be careful to account for all work performed by operations during an idle callback. Some operations, such as resolving a promise or triggering a page layout, may cause
+subsequent tasks to be scheduled to run after the idle callback has finished. In such cases, the application should account for this additional work by yielding before the deadline expires to allow these operations to be performed before the next frame deadline.
+</p>
+
 <p>
 Another example of an idle period is when the user agent is idle with no screen updates occurring. In such a situation the user agent may have no upcoming tasks with which it can bound the end of the idle period. In order to avoid causing user-perceptible delays in unpredictable tasks, such as processing of user input, the length of these idle periods should be capped to a maximum value of <a href="#why50">50ms</a>. Once an idle period is finished the user agent can schedule another idle period if it remains idle, as shown in <a href='#figure2'></a>, to enable background work to continue to occur over longer idle time periods.
 </p>
@@ -159,6 +164,7 @@ Another example of an idle period is when the user agent is idle with no screen 
 <img alt="Example of an idle period when there are no pending frame updates." src="images/image00.png">
 <figcaption>Example of an idle period when there are no pending frame updates</figcaption>
 </figure>
+
 
 <p>
 During an idle period the user agent will run idle callbacks in FIFO order until either the the idle period ends or there are no more idle callbacks eligible to be run. As such, the user agent will not necessarily run all currently posted idle callbacks within a single idle period. Any remaining idle tasks are eligible to run during the next idle period. Only idle tasks which
