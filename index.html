@@ -167,7 +167,7 @@ Another example of an idle period is when the user agent is idle with no screen 
 
 
 <p>
-During an idle period the user agent will run idle callbacks in FIFO order until either the the idle period ends or there are no more idle callbacks eligible to be run. As such, the user agent will not necessarily run all currently posted idle callbacks within a single idle period. Any remaining idle tasks are eligible to run during the next idle period. Only idle tasks which
+During an idle period the user agent will run idle callbacks in FIFO order until either the idle period ends or there are no more idle callbacks eligible to be run. As such, the user agent will not necessarily run all currently posted idle callbacks within a single idle period. Any remaining idle tasks are eligible to run during the next idle period. Only idle tasks which
 were posted before the start of the current idle period are
 eligible to be run during the current idle period. This enables
 idle callbacks to re-post themselves to be run in a future idle
@@ -188,7 +188,7 @@ period every 10 seconds rather than continuously.
 A final subtlety to note is that there is no
 guarantee that a user agent will have any idle CPU time available
 during heavy page load. As such, it is entirely acceptable that the
-user agent not schedule any idle period, which would result in the
+user agent does not schedule any idle period, which would result in the
 idle callbacks posted via the <code>requestIdleCallback</code> API
 being postponed for a potentially unbounded amount of time. In
 order to provide script authors with a guarantee that these
