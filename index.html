@@ -228,8 +228,8 @@ The partial interface in the IDL fragment below is used to expose the <code>requ
 </p>
 <pre class='idl'>
 partial interface Window {
-  long requestIdleCallback(IdleRequestCallback callback, optional unsigned long timeout);
-  void cancelIdleCallback(long handle);
+  unsigned long requestIdleCallback(IdleRequestCallback callback, optional unsigned long timeout);
+  void cancelIdleCallback(unsigned long handle);
 };
 
 interface IdleDeadline {
@@ -404,5 +404,5 @@ the <var>document</var>'s <a>list of runnable idle callbacks</a>.</li>
 <section id="acknowledgements" class="appendix">
 <h2>Acknowledgments</h2>
 <p>
-The editors would like to thank the following people for contributing to this specification: Sami Kyostila, Alex Clarke, Boris Zbarsky, Marcos Caceres, Jonas Sicking, Robert O'Callahan, Todd Reifsteck, Tobin Titus, Ilya Grigorik, Elliott Sprehn, Lon Ingram and Philippe Le Hegaret.
+The editors would like to thank the following people for contributing to this specification: Sami Kyostila, Alex Clarke, Boris Zbarsky, Marcos Caceres, Jonas Sicking, Robert O'Callahan, Todd Reifsteck, Tobin Titus, Ilya Grigorik, Elliott Sprehn, Tetsuharu OHZEKI, Lon Ingram and Philippe Le Hegaret.
 </p>
