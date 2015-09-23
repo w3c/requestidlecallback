@@ -193,8 +193,8 @@ idle callbacks posted via the <code>requestIdleCallback</code> API
 being postponed for a potentially unbounded amount of time. In
 order to provide script authors with a guarantee that these
 callbacks will be run, the <code>requestIdleCallback</code> API
-provides an optional argument specifying a timeout by which the
-callback should be run.
+provides an optional options argument which can be used to
+specify a timeout by which the callback should be run.
 </p>
 
 <p class="note" id='why50'>
@@ -228,8 +228,12 @@ The partial interface in the IDL fragment below is used to expose the <code>requ
 </p>
 <pre class='idl'>
 partial interface Window {
-  unsigned long requestIdleCallback(IdleRequestCallback callback, optional unsigned long timeout);
+  unsigned long requestIdleCallback(IdleRequestCallback callback, optional IdleRequestOptions options);
   void cancelIdleCallback(unsigned long handle);
+};
+
+dictionary IdleRequestOptions {
+  optional unsigned long timeout;
 };
 
 interface IdleDeadline {
@@ -249,7 +253,7 @@ Each <code>Document</code> has:
 <li>and an <dfn>idle callback identifier</dfn>, which is a number which MUST initially be zero.</li>
 </ul>
 <p>
-When <code>requestIdleCallback(callback, timeout)</code> is invoked, the user agent MUST run the following steps:</p>
+When <code>requestIdleCallback(callback, options)</code> is invoked, the user agent MUST run the following steps:</p>
 <ol>
 <li>
 Let <var>document</var> be the <code>Window</code> object's
@@ -260,7 +264,7 @@ Let <var>document</var> be the <code>Window</code> object's
 <li>Append <var>callback</var> to <var>document</var>'s <a>list of idle request callbacks</a>, associated with <var>handle</var>.</li>
 <li>Return <var>handle</var> and then continue running this
 algorithm asynchronously.</li>
-<li>If <var>timeout</var> is not omitted and is a positive value:
+<li>If <var>options</var> is not omitted and has a <var>timeout</var> property which is a positive value:
 <ol type='a'>
   <li>Wait for <var>timeout</var> milliseconds.</li>
   <li>Wait until any invocations of this algorithm started before this one whose <var>timeout</var> is equal to or less than this one's have completed.</li>
