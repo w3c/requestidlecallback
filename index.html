@@ -296,14 +296,14 @@ Let <var>document</var> be the <code>Window</code> object's
 <code>cancelIdleCallback</code> might be invoked for an entry in the <var>document</var>'s <a>list of idle request callbacks</a> or the <var>document</var>'s <a>list of runnable idle callbacks</a> . In either case the entry should be removed from the list so that the callback does not run.
 </p>
 <p>
-When the <code>timeRemaining()</code> function is called on an <code>IdleDeadline</code> object it MUST return the amount of time remaining before the callback's deadline as a DOMHighResTimeStamp.
+When the <code>timeRemaining()</code> function is called on an <code>IdleDeadline</code> object it MUST return the amount of time remaining before the callback's deadline as a DOMHighResTimeStamp. The value SHOULD be accurate to 5 microseconds - see <a href="http://w3.org/TR/hr-time-2/#privacy-security">Privacy and Security</a>.
 This value is calculated by performing the following steps:
 <ol>
 <li>Let <var>deadline</var> be the deadline of the associated callback as a <code><a href="http://www.w3.org/TR/hr-time-2/#dom-domhighrestimestamp">DOMHighResTimeStamp</a></code>. [[!hr-time-2]]</li>
 <li>Let <var>now</var> be the value returned by <code><a href="http://www.w3.org/TR/hr-time-2/#widl-Performance-now-DOMHighResTimeStamp">performance.now()</a></code>. [[!hr-time-2]]</li>
 <li>Let <var>timeRemaining</var> be <var>deadline</var> - <var>now</var>.</li>
 <li>If <var>timeRemaining</var> is negative, set it to 0.</li>
-<li>Return <var>timeRemainng</var>.</li>
+<li>Return <var>timeRemaining</var>.</li>
 </ol>
  </p>
 <p>The <code>didTimeout</code> attribute on an <code>IdleDeadline</code> object MUST return <code>true</code> if the callback was invoked by the <a>invoke idle callback timeout algorithm</a>, and <code>false</code> otherwise.
