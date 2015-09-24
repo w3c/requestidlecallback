@@ -192,9 +192,9 @@ user agent does not schedule any idle period, which would result in the
 idle callbacks posted via the <code>requestIdleCallback</code> API
 being postponed for a potentially unbounded amount of time. In
 order to provide script authors with a guarantee that these
-callbacks will be run, the <code>requestIdleCallback</code> API
-provides an optional options argument which can be used to
-specify a timeout by which the callback should be run.
+callbacks will be run, authors can specify a timeout by which the
+callback should be run by setting the <code>timeout</code> property in the
+<code>options</code> argument to <code>requestIdleCallback</code>.
 </p>
 
 <p class="note" id='why50'>
@@ -264,7 +264,7 @@ Let <var>document</var> be the <code>Window</code> object's
 <li>Append <var>callback</var> to <var>document</var>'s <a>list of idle request callbacks</a>, associated with <var>handle</var>.</li>
 <li>Return <var>handle</var> and then continue running this
 algorithm asynchronously.</li>
-<li>If <var>options</var> is not omitted and has a <var>timeout</var> property which is a positive value:
+<li>If the <var>timeout</var> property is present in <var>options</var> and has a positive value:
 <ol type='a'>
   <li>Wait for <var>timeout</var> milliseconds.</li>
   <li>Wait until any invocations of this algorithm started before this one whose <var>timeout</var> is equal to or less than this one's have completed.</li>
