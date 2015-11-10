@@ -165,19 +165,40 @@ Another example of an idle period is when the user agent is idle with no screen 
 <figcaption>Example of an idle period when there are no pending frame updates</figcaption>
 </figure>
 
+<p>
+During an idle period the user agent will run idle callbacks in FIFO order until either the idle period ends or there are no more idle callbacks eligible to be run. As such, the user agent will not necessarily run all currently posted idle callbacks within a single idle period. Any remaining idle tasks are eligible to run during the next idle period. 
+</p>
 
 <p>
-During an idle period the user agent will run idle callbacks in FIFO order until either the idle period ends or there are no more idle callbacks eligible to be run. As such, the user agent will not necessarily run all currently posted idle callbacks within a single idle period. Any remaining idle tasks are eligible to run during the next idle period. Only idle tasks which
-were posted before the start of the current idle period are
-eligible to be run during the current idle period. This enables
+Only idle tasks which posted before the start of the current idle period are
+eligible to be run during the current idle period. As a result, if an idle
+callback posts another callback using <code>requestIdleCallback</code>, this
+subsiquent callback won't be run during the current idle period. This enables
 idle callbacks to re-post themselves to be run in a future idle
-period if they cannot complete their work by a given deadline. At
-the start of the next idle period newly posted idle callbacks are
+period if they cannot complete their work by a given deadline - i.e., allowing
+code patterns like the following example, without causing the callback to be
+repeatedly executed during a too-short idle period:
+
+<pre class='example highlight'>
+function doWork(deadline) {
+  if (deadline.timeRemaining() <= 5) {
+    // This will take more than 5ms so wait until we
+    // get called back with a long enough deadline.
+    requestIdleCallback(doWork);
+    return;
+  }
+  // do work...
+}
+</pre>
+
+<p>
+At the start of the next idle period newly posted idle callbacks are
 appended to the end of the runnable idle callback list, thus
 ensuring that reposting callbacks will be run round-robin style,
 with each callback getting a chance to be run before that of an
 earlier task's reposted callback.
 </p>
+
 <p>
 When the user agent determines that the web
 page is not user visible it can throttle idle periods to reduce the
