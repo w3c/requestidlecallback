@@ -274,8 +274,12 @@ This is intended to allow user agents to pad timeouts as needed to optimise the 
 processor to use the more accurate mode with its associated higher power usage.
   </p>
 </li>
-<li><a href="http://www.w3.org/TR/html5/webappapis.html#queue-a-task">Queue a task</a> on the queue associated with the idle-task task
+<li>If <var>handle</var> is in <var>document</var>'s <a>list of idle request callbacks</a> or <var>document</var>'s <a>list of runnable idle callbacks</a>:
+<ol>
+  <li><a href="http://www.w3.org/TR/html5/webappapis.html#queue-a-task">Queue a task</a> on the queue associated with the idle-task task
 source, which performs the <a>invoke idle callback timeout algorithm</a>, passing <var>handle</var> and <var>document</var> as arguments.
+</li>
+</ol>
 </li>
 </ol>
 </li>
