@@ -173,7 +173,7 @@ During an idle period the user agent will run idle callbacks in FIFO order until
 Only idle tasks which posted before the start of the current idle period are
 eligible to be run during the current idle period. As a result, if an idle
 callback posts another callback using <code>requestIdleCallback</code>, this
-subsiquent callback won't be run during the current idle period. This enables
+subsequent callback won't be run during the current idle period. This enables
 idle callbacks to re-post themselves to be run in a future idle
 period if they cannot complete their work by a given deadline - i.e., allowing
 code patterns like the following example, without causing the callback to be
