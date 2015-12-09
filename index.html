@@ -73,12 +73,12 @@ notices. </p>
 <section id="introduction" class='informative'>
 <h2>Introduction</h2>
 <p>
-Web pages often want to execute computation tasks on the browser's event loop which are not time-critical, but might take a significant portion of time to perform. Examples of such background tasks include recording analytics data to <code>localStorage</code> [[webstorage]], long running data
+Web pages often want to execute computation tasks on the browser's event loop which are not time-critical, but might take a significant portion of time to perform. Examples of such background tasks include recording analytics data, long running data
 processing operations, client-side templating and pre-rendering of content likely to become visible in the near future. These tasks must share the event loop with other time-critical operations, such as reacting to input and performing script-based animations using <code>requestAnimationFrame</code> [[animation-timing]]. These background tasks are typically performed by scheduling a callback using <code><a href="http://www.w3.org/TR/html5/webappapis.html#dom-windowtimers-settimeout">setTimeout</a></code> and running the background task during that callback.
 </p>
 
 <p>
-A disadvantage of this approach is that the author of the script has no way to inform the user-agent as to whether a given <code>setTimeout</code> callback is time-critical or could be delayed until the browser is otherwise idle. In addition, the user agent isn't able to provide the callback with any information about how long it can continue to execute without delaying time-critical operations and causing jank or other user-perceptible delays. As a result, the easiest way forward is for the author is to simply call <code>setTimeout</code> with a very small value, and then execute the minimum possible chunk of work in the resulting callback and reschedule additional work with another call to <code>setTimeout</code>.  This is less than optimal because there is extra overhead from having to post many small tasks on the user agent's event loop and schedule their execution. It also relies on the user-agent interleaving other time-critical work between each of these callbacks appropriately, which is difficult since the user-agent can't make any assumptions on how long each of these callbacks are likely to take.
+A disadvantage of this approach is that the author of the script has no way to inform the user-agent as to whether a given <code>setTimeout</code> callback is time-critical or could be delayed until the browser is otherwise idle. In addition, the user agent isn't able to provide the callback with any information about how long it can continue to execute without delaying time-critical operations and causing jank or other user-perceptible delays. As a result, the easiest way forward is for the author is to simply call <code>setTimeout</code> with a very small value, and then execute the minimum possible chunk of work in the resulting callback and reschedule additional work with another call to <code>setTimeout</code>.  This is less than optimal because there is extra overhead from having to post many small tasks on the user agent's event loop and schedule their execution. It also relies on the user-agent interleaving other time-critical work between each of these callbacks appropriately, which is difficult since the user-agent can't make accurate assumptions on how long each of these callbacks are likely to take.
 </p>
 
 <p>
@@ -152,7 +152,7 @@ One example of an idle period is the time between committing a given frame to th
 </figure>
 
 <p class="note">
-The user should be careful to account for all work performed by operations during an idle callback. Some operations, such as resolving a promise or triggering a page layout, may cause
+The web-developer should be careful to account for all work performed by operations during an idle callback. Some operations, such as resolving a promise or triggering a page layout, may cause
 subsequent tasks to be scheduled to run after the idle callback has finished. In such cases, the application should account for this additional work by yielding before the deadline expires to allow these operations to be performed before the next frame deadline.
 </p>
 
@@ -254,7 +254,7 @@ partial interface Window {
 };
 
 dictionary IdleRequestOptions {
-  optional unsigned long timeout;
+  unsigned long timeout;
 };
 
 interface IdleDeadline {
@@ -288,7 +288,7 @@ algorithm asynchronously.</li>
 <li>If the <var>timeout</var> property is present in <var>options</var> and has a positive value:
 <ol type='a'>
   <li>Wait for <var>timeout</var> milliseconds.</li>
-  <li>Wait until any invocations of this algorithm started before this one whose <var>timeout</var> is equal to or less than this one's have completed.</li>
+  <li>Wait until all invocations of this algorithm, whose <var>timeout</var> added to their posted time occurred before this one's, have completed.</li>
   <li>Optionally, wait a further user-agent defined length of time.
   <p class='note'>
 This is intended to allow user agents to pad timeouts as needed to optimise the power usage of the device. For example, some processors have a low-power mode where the granularity of timers is reduced; on such platforms, user agents can slow timers down to fit this schedule instead of requiring the
@@ -337,12 +337,12 @@ This value is calculated by performing the following steps:
 <section>
 <h2>Processing Model</h2>
 <p>
-Whenever the user agent assesses that a given <a href="http://www.w3.org/TR/html5/webappapis.html#event-loop">event loop</a> is likely to remain idle for a non-trivial amount of time, it SHOULD initiate a new idle period for the <a href="http://www.w3.org/TR/html5/webappapis.html#event-loop">event loop</a>.
+Whenever the user agent assesses that a given <a href="http://www.w3.org/TR/html5/webappapis.html#event-loop">event loop</a> is likely to remain idle for a non-trivial amount of time, and that background work could be executed on this event loop without impacting any high priority work occurring on other event-loops, it SHOULD initiate a new idle period for the <a href="http://www.w3.org/TR/html5/webappapis.html#event-loop">event loop</a>.
 </p>
 
 <p class="note">
 The expectation is that the user agent will initiate idle periods regularly when the event loop becomes idle, for example, in between frame rendering and regularly during times when no frames are being rendered. If the <code>Document</code>'s <code><a href="http://www.w3.org/TR/page-visibility/#dom-document-hidden">hidden</a></code> attribute
-[[page-visibility]] is false then the user agent can throttle idle period generation, for example limiting the Document to one idle period every 10 seconds to optimize for power usage.
+[[page-visibility]] is true then the user agent can throttle idle period generation, for example limiting the Document to one idle period every 10 seconds to optimize for power usage.
 </p>
 
 <p>When the user agent wishes to start an <a href="http://www.w3.org/TR/html5/webappapis.html#event-loop">event loop</a>'s idle period, the following steps MUST be performed:</p>
@@ -429,5 +429,5 @@ the <var>document</var>'s <a>list of runnable idle callbacks</a>.</li>
 <section id="acknowledgements" class="appendix">
 <h2>Acknowledgments</h2>
 <p>
-The editors would like to thank the following people for contributing to this specification: Sami Kyostila, Alex Clarke, Boris Zbarsky, Marcos Caceres, Jonas Sicking, Robert O'Callahan, Todd Reifsteck, Tobin Titus, Ilya Grigorik, Elliott Sprehn, Tetsuharu OHZEKI, Lon Ingram and Philippe Le Hegaret.
+The editors would like to thank the following people for contributing to this specification: Sami Kyostila, Alex Clarke, Boris Zbarsky, Marcos Caceres, Jonas Sicking, Robert O'Callahan, David Baron, Todd Reifsteck, Tobin Titus, Ilya Grigorik, Elliott Sprehn, Tetsuharu OHZEKI, Lon Ingram and Philippe Le Hegaret.
 </p>
