@@ -167,7 +167,7 @@ Another example of an idle period is when the user agent is idle with no screen 
 </figure>
 
 <p>
-During an idle period the user agent will run idle callbacks in FIFO order until either the idle period ends or there are no more idle callbacks eligible to be run. As such, the user agent will not necessarily run all currently posted idle callbacks within a single idle period. Any remaining idle tasks are eligible to run during the next idle period. 
+During an idle period the user agent will run idle callbacks in FIFO order until either the idle period ends or there are no more idle callbacks eligible to be run. As such, the user agent will not necessarily run all currently posted idle callbacks within a single idle period. Any remaining idle tasks are eligible to run during the next idle period.
 </p>
 
 <p>
@@ -246,7 +246,7 @@ A user agent is considered to be a conforming user agent if it satisfies all of 
 <h2>Window interface extensions</h2>
 
 <p>
-The partial interface in the IDL fragment below is used to expose the <code>requestIdleCallback</code> operation on the <code><a href="http://www.w3.org/TR/html5/browsers.html#the-window-object">Window</a></code> object. In the definition of <code>requestIdleCallback</code> below, references to the <code><a href="http://www.w3.org/TR/dom/#document">Document</a></code> object [[!dom]] are to be taken to be references to the <code>Window</code> object's <a href="http://www.w3.org/TR/html5/browsers.html#active-document">active document</a>. [[!HTML5]]
+The partial interface in the IDL fragment below is used to expose the <code>requestIdleCallback</code> operation on the <code><a href="http://www.w3.org/TR/html5/browsers.html#the-window-object">Window</a></code> object. [[!HTML5]]
 </p>
 <pre class='idl'>
 partial interface Window {
@@ -267,23 +267,20 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
 </pre>
 
 <p>
-Each <code>Document</code> has:
+Each <code>Window</code> has:
 </p>
 <ul>
-<li>a <dfn>list of idle request callbacks</dfn>, which MUST be initially empty,</li>
-<li>a <dfn>list of runnable idle callbacks</dfn>, which MUST be initially empty,</li>
-<li>and an <dfn>idle callback identifier</dfn>, which is a number which MUST initially be zero.</li>
+<li>A <dfn>list of idle request callbacks</dfn>. The list MUST be initially empty and each entry in this list is identified by a number, which MUST be unique within the list for the lifetime of the <code>Window</code> object.</li>
+<li>A <dfn>list of runnable idle callbacks</dfn>. The list MUST be initially empty and each entry in this list is identified by a number, which MUST be unique within the list of the lifetime of the <code>Window</code> object.</li>
+<li>An <dfn>idle callback identifier</dfn>, which is a number which MUST initially be zero.</li>
 </ul>
 <p>
 When <code>requestIdleCallback(callback, options)</code> is invoked, the user agent MUST run the following steps:</p>
 <ol>
-<li>
-Let <var>document</var> be the <code>Window</code> object's
-<a href="http://www.w3.org/TR/html5/browsers.html#active-document">active document</a> object. [[!HTML5]]
-</li>
-<li>Increment the <var>document</var>'s <a>idle callback identifier</a> by one.</li>
-<li>Let <var>handle</var> be the <var>document</var>'s <a>idle callback identifier</a>'s current value</li>
-<li>Append <var>callback</var> to <var>document</var>'s <a>list of idle request callbacks</a>, associated with <var>handle</var>.</li>
+<li>Let <var>window</var> be this <code>Window</code> object.</li>
+<li>Increment the <code>window</code>'s <a>idle callback identifier</a> by one.</li>
+<li>Let <var>handle</var> be <var>window</var>'s <a>idle callback identifier</a> current value.</li>
+<li>Append <var>callback</var> to <code>window</code>'s <a>list of idle request callbacks</a>, associated with <var>handle</var>.</li>
 <li>Return <var>handle</var> and then continue running this
 algorithm asynchronously.</li>
 <li>If the <var>timeout</var> property is present in <var>options</var> and has a positive value:
@@ -297,7 +294,7 @@ processor to use the more accurate mode with its associated higher power usage.
   </p>
 </li>
 <li><a href="http://www.w3.org/TR/html5/webappapis.html#queue-a-task">Queue a task</a> on the queue associated with the idle-task task
-source, which performs the <a>invoke idle callback timeout algorithm</a>, passing <var>handle</var> and <var>document</var> as arguments.
+source, which performs the <a>invoke idle callback timeout algorithm</a>, passing <var>handle</var> and <var>window</var> as arguments.
 </li>
 </ol>
 </li>
@@ -310,16 +307,13 @@ The <code>cancelIdleCallback</code> method is used to cancel a previously made r
 When <code>cancelIdleCallback(handle)</code> is called, the user agent MUST run the following steps:
 </p>
 <ol>
-<li>
-Let <var>document</var> be the <code>Window</code> object's
-<a href="http://www.w3.org/TR/html5/browsers.html#active-document">active document</a> object. [[!HTML5]]
-</li>
-<li>Find the entry in either the <var>document</var>'s <a>list of idle request callbacks</a> or the <var>document</var>'s <a>list of runnable idle callbacks</a> that is associated with the value <var>handle</var>.</li>
-<li>If there is such an entry, remove it from both the <var>document</var>'s <a>list of idle request callbacks</a> and the <var>document</var>'s <a>list of runnable idle callbacks</a>.
+<li>Let <var>window</var> be this <code>Window</code> object.</li>
+<li>Find the entry in either the <code>window</code>'s <a>list of idle request callbacks</a> or <a>list of runnable idle callbacks</a> that is associated with the value <var>handle</var>.</li>
+<li>If there is such an entry, remove it from both <code>window</code>'s <a>list of idle request callbacks</a> and the <a>list of runnable idle callbacks</a>.
 </li>
 </ol>
 <p class='note'>
-<code>cancelIdleCallback</code> might be invoked for an entry in the <var>document</var>'s <a>list of idle request callbacks</a> or the <var>document</var>'s <a>list of runnable idle callbacks</a> . In either case the entry should be removed from the list so that the callback does not run.
+<code>cancelIdleCallback</code> might be invoked for an entry in <var>window</var>'s <a>list of idle request callbacks</a> or the <a>list of runnable idle callbacks</a>. In either case the entry should be removed from the list so that the callback does not run.
 </p>
 <p>
 When the <code>timeRemaining()</code> function is called on an <code>IdleDeadline</code> object it MUST return the amount of time remaining before the callback's deadline as a DOMHighResTimeStamp. The value SHOULD be accurate to 5 microseconds - see <a href="http://w3.org/TR/hr-time-2/#privacy-security">Privacy and Security</a>.
@@ -358,11 +352,11 @@ The expectation is that the user agent will initiate idle periods regularly when
 <li>Let <var>deadline</var> be a time in the future until which the browser expects to remain idle.</li>
 <li>If <var>deadline</var> - <var>now</var> is greater than 50ms, then cap <var>deadline</var> by setting it to
 be <var>now</var> + 50ms.</li>
-<li>Let <var>docs</var> be the list of <a href="http://www.w3.org/TR/html5/browsers.html#fully-active">fully active</a> <code>Document</code> objects associated with the event loop in question, sorted arbitrarily.</li>
-<li>For every <var>document</var> in <var>docs</var>, in any order, perform the following steps:
+<li>Let <var>docs</var> be the list of <a href="http://www.w3.org/TR/html5/browsers.html#fully-active">fully active</a> <code>Document</code> objects associated with the event loop in question.</li>
+<li>For every <var>document</var> in <var>docs</var> perform the following steps:
 <ol type="a">
-<li>Let <var>doclist</var> be <var>document</var>'s <a>list of idle request callbacks</a>.</li>
-<li>Let <var>runlist</var> be <var>document</var>'s <a>list of runnable idle callbacks</a>.</li>
+<li>Let <var>doclist</var> be <var>document</var>'s <code>Window</code> object's <a>list of idle request callbacks</a>.</li>
+<li>Let <var>runlist</var> be <var>document</var>'s <code>Window</code> object's <a>list of runnable idle callbacks</a>.</li>
 <li>Append all entries from <var>doclist</var> into <var>runlist</var> preserving order.</li>
 <li>Clear <var>doclist</var>.</li>
 <li><a href="http://www.w3.org/TR/html5/webappapis.html#queue-a-task">Queue a task</a> which performs the steps defined in the <a>invoke idle callbacks algorithm</a> with parameters <var>runlist</var> and <var>deadline</var>.</li>
@@ -415,11 +409,10 @@ The user agent is free to end an idle period early, even if <var>deadline</var> 
 
 <p>The <dfn>invoke idle callback timeout algorithm</dfn>:</p>
 <ol>
-<li>Let <var>callback</var> be the result of finding the entry in the <var>document</var>'s <a>list of idle request callbacks</a> or the <var>document</var>'s <a>list of runnable idle callbacks</a> that is associated with the value given by the <var>handle</var> argument passed to the algorithm.</li>
+<li>Let <var>callback</var> be the result of finding the entry in <var>window</var>'s <a>list of idle request callbacks</a> or the <a>list of runnable idle callbacks</a> that is associated with the value given by the <var>handle</var> argument passed to the algorithm.</li>
 <li>If <var>callback</var> is not undefined:
 <ol>
-<li>Remove <var>callback</var> from both the <var>document</var>'s <a>list of idle request callbacks</a> and
-the <var>document</var>'s <a>list of runnable idle callbacks</a>.</li>
+<li>Remove <var>callback</var> from both <var>window</a>'s <a>list of idle request callbacks</a> and the <a>list of runnable idle callbacks</a>.</li>
 <li>Let <var>now</var> be the current time.</li>
 <li>Let <var>deadlineArg</var> be an <code>IdleDeadline</code> constructed with a deadline of <var>now</var> and the <code>didTimeout</code> attribute set to <code>true</code>.</li>
 <li>Call <var>callback</var> with <var>deadlineArg</var> as its argument. If an uncaught runtime script error occurs, then <a href="http://www.w3.org/TR/html5/webappapis.html#report-the-error">report the error</a>.</li>
@@ -430,5 +423,5 @@ the <var>document</var>'s <a>list of runnable idle callbacks</a>.</li>
 <section id="acknowledgements" class="appendix">
 <h2>Acknowledgments</h2>
 <p>
-The editors would like to thank the following people for contributing to this specification: Sami Kyostila, Alex Clarke, Boris Zbarsky, Marcos Caceres, Jonas Sicking, Robert O'Callahan, David Baron, Todd Reifsteck, Tobin Titus, Ilya Grigorik, Elliott Sprehn, Tetsuharu OHZEKI, Lon Ingram and Philippe Le Hegaret.
+The editors would like to thank the following people for contributing to this specification: Sami Kyostila, Alex Clarke, Boris Zbarsky, Marcos Caceres, Jonas Sicking, Robert O'Callahan, David Baron, Todd Reifsteck, Tobin Titus, Ilya Grigorik, Elliott Sprehn, Tetsuharu OHZEKI, Lon Ingram, Domenic Denicola and Philippe Le Hegaret.
 </p>
