@@ -359,9 +359,9 @@ be <var>now</var> + 50ms.</li>
 <li>Let <var>runlist</var> be <var>document</var>'s <code>Window</code> object's <a>list of runnable idle callbacks</a>.</li>
 <li>Append all entries from <var>doclist</var> into <var>runlist</var> preserving order.</li>
 <li>Clear <var>doclist</var>.</li>
-<li><a href="http://www.w3.org/TR/html5/webappapis.html#queue-a-task">Queue a task</a> which performs the steps defined in the <a>invoke idle callbacks algorithm</a> with parameters <var>runlist</var> and <var>deadline</var>.</li>
 </ol>
 </li>
+<li><a href="http://www.w3.org/TR/html5/webappapis.html#queue-a-task">Queue a task</a> which performs the steps defined in the <a>invoke idle callbacks algorithm</a> with <var>deadline</var> as parameter.</li>
 <li>
 Save <var>deadline</var> as the last idle period deadline associated with the current event loop.</li>
 </ol>
@@ -391,14 +391,17 @@ user input within the threshold of human perception.</p>
 </div>
 <p>The <dfn>invoke idle callbacks algorithm</dfn>:</p>
 <ol>
+<li>Let <var>docs</var> be the list of <a href="http://www.w3.org/TR/html5/browsers.html#fully-active">fully active</a> <code>Document</code> objects whose <code>Window</code> object's <a>list of runnable idle callbacks</a> is not empty.</li>
 <li>Let <var>now</var> be the current time.</li>
 <li>If <var>now</var> is less than <var>deadline</var>:
 <ol>
-<li>Pop <var>callback</var> from the <var>runlist</var>.</li>
+<li>Select any <var>document</var> from <var>docs</var>.</li>
+<li>Pop <var>callback</var> from <var>document</var>'s <code>Window</code> object's <a>list of runnable idle callbacks</a>.</li>
+<li>If <var>document</var>'s <code>Window</code> object's <a>list of runnable idle callbacks</a> is now empty, remove <var>document</var> from <var>docs</var>.</li>
 <li>Let <var>deadlineArg</var> be an <code>IdleDeadline</code> constructed
-with the given <var>deadline</var> and the <code>didTimeout</code> attribute set to <code>false</code></li>
+with the given <var>deadline</var> and the <code>didTimeout</code> attribute set to <code>false</code>.</li>
 <li>Call <var>callback</var> with <var>deadlineArg</var> as its argument. If an uncaught runtime script error occurs, then <a href="http://www.w3.org/TR/html5/webappapis.html#report-the-error">report the error</a>.</li>
-<li id='s2.4'>If <var>runlist</var> is not empty, the user agent SHOULD <a href="http://www.w3.org/TR/html5/webappapis.html#queue-a-task">queue a task</a> which performs the steps in the <a>invoke idle callbacks algorithm</a> with parameters <var>runlist</var> and <var>deadline</var>.</li>
+<li>If <var>docs</var> is not empty, the user agent SHOULD <a href="http://www.w3.org/TR/html5/webappapis.html#queue-a-task">queue a task</a> which performs the steps in the <a>invoke idle callbacks algorithm</a> with <var>deadline</var> as parameter.</li>
 </ol>
 </li>
 </ol>
