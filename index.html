@@ -3,7 +3,9 @@
 <head>
   <meta charset="utf-8">
   <title>Cooperative Scheduling of Background Tasks</title>
-  <script src='//www.w3.org/Tools/respec/respec-w3c-common' async class='remove'></script>
+  <script src='//www.w3.org/Tools/respec/respec-w3c-common' async class=
+  'remove'>
+  </script>
   <script class='remove'>
   var respecConfig = {
     shortName: "requestidlecallback",
@@ -28,6 +30,7 @@
     wgURI: "http://www.w3.org/2010/webperf/",
     wgPublicList: "public-web-perf",
     subjectPrefix: "[RequestIdleCallback]",
+    format: "markdown",
     otherLinks: [{
       key: 'Repository',
       data: [{
@@ -45,64 +48,79 @@
       }]
     }],
     localBiblio:  {
-    "RESPONSETIME": {
-        title:    "Response time in man-computer conversational transactions"
-    ,   href:     "http://yusufarslan.net/sites/yusufarslan.net/files/upload/content/Miller1968.pdf"
-    ,   authors:  [
-            "Robert B. Miller"
-        ]
-    ,   status:  "Fall Joint Computer Conference"
-    ,   date: "December 1968"
-    }
+      "RESPONSETIME": {
+        title: "Response time in man-computer conversational transactions",
+        href: "http://yusufarslan.net/sites/yusufarslan.net/files/upload/content/Miller1968.pdf",
+        authors: ["Robert B. Miller"],
+        status: "Fall Joint Computer Conference",
+        date: "December 1968"
+      }
     },
     wgPatentURI:  "http://www.w3.org/2004/01/pp-impl/45211/status"
   };
   </script>
 </head>
-
 <body>
-
-<section id="abstract">
-<p>This document defines an API that web page authors can use to cooperatively schedule background tasks such that they do not introduce delays to other high priority tasks that share the same event loop, such as input processing, animations and frame compositing. The user agent is in a better position to determine when background tasks can be run without introducing user-perceptible delays or jank in animations and input response, based on its knowledge of currently scheduled tasks, vsync deadlines, user-interaction and so on.  Using this API should therefore result in more appropriate scheduling of background tasks during times when the browser would otherwise be idle.</p>
-</section>
-
-<section id="sotd">
-<p>This is a <strong>work in progress</strong> and may change without any
-notices. </p>
-
-<p id="unstable"><strong class="redNote">Implementers SHOULD be aware that this document is not
-        stable.</strong> Implementers who are not taking part in the discussions
-        are likely to find the specification changing out from under them in
-        incompatible ways. Vendors interested in implementing this document
-        before it eventually reaches the Candidate Recommendation stage SHOULD
-        join the mailing lists below and take part in the discussions.</p>
-
-</section>
-
-<section id="introduction" class='informative'>
-<h2>Introduction</h2>
-<p>
-Web pages often want to execute computation tasks on the browser's event loop which are not time-critical, but might take a significant portion of time to perform. Examples of such background tasks include recording analytics data, long running data
-processing operations, client-side templating and pre-rendering of content likely to become visible in the near future. These tasks must share the event loop with other time-critical operations, such as reacting to input and performing script-based animations using <code>requestAnimationFrame</code> [[animation-timing]]. These background tasks are typically performed by scheduling a callback using <code><a href="http://www.w3.org/TR/html5/webappapis.html#dom-windowtimers-settimeout">setTimeout</a></code> and running the background task during that callback.
-</p>
-
-<p>
-A disadvantage of this approach is that the author of the script has no way to inform the user-agent as to whether a given <code>setTimeout</code> callback is time-critical or could be delayed until the browser is otherwise idle. In addition, the user agent isn't able to provide the callback with any information about how long it can continue to execute without delaying time-critical operations and causing jank or other user-perceptible delays. As a result, the easiest way forward is for the author is to simply call <code>setTimeout</code> with a very small value, and then execute the minimum possible chunk of work in the resulting callback and reschedule additional work with another call to <code>setTimeout</code>.  This is less than optimal because there is extra overhead from having to post many small tasks on the user agent's event loop and schedule their execution. It also relies on the user-agent interleaving other time-critical work between each of these callbacks appropriately, which is difficult since the user-agent can't make accurate assumptions on how long each of these callbacks are likely to take.
-</p>
-
-<p>
-The API described in this document allows script authors to request the user-agent to schedule a callback when it would otherwise be idle. The user agent provides an estimation of how long it expects to remain idle as a deadline passed to the callback. The page author can use the deadline to
-ensure that these background tasks don't impact latency-critical events such as animation and input response.
-</p>
-
-<p>
-Here is an example of using the API to
-write a background task.
-</p>
-<pre class='example highlight'>
-&lt;!DOCTYPE html>
-&lt;title>Scheduling background tasks using requestIdleCallback&lt;/title>
-&lt;script>
+  <section id="abstract">
+    <p>This document defines an API that web page authors can use to
+    cooperatively schedule background tasks such that they do not introduce
+    delays to other high priority tasks that share the same event loop, such as
+    input processing, animations and frame compositing. The user agent is in a
+    better position to determine when background tasks can be run without
+    introducing user-perceptible delays or jank in animations and input
+    response, based on its knowledge of currently scheduled tasks, vsync
+    deadlines, user-interaction and so on. Using this API should therefore
+    result in more appropriate scheduling of background tasks during times when
+    the browser would otherwise be idle.</p>
+  </section>
+  <section id="sotd">
+    <p>This is a <strong>work in progress</strong> and may change without any
+    notices.</p>
+    <p id="unstable"><strong class="redNote">Implementers SHOULD be aware that
+    this document is not stable.</strong> Implementers who are not taking part
+    in the discussions are likely to find the specification changing out from
+    under them in incompatible ways. Vendors interested in implementing this
+    document before it eventually reaches the Candidate Recommendation stage
+    SHOULD join the mailing lists below and take part in the discussions.</p>
+  </section>
+  <section class="informative">
+    <h2>Introduction</h2>
+    <p>Web pages often want to execute computation tasks on the browser's event
+    loop which are not time-critical, but might take a significant portion of
+    time to perform. Examples of such background tasks include recording
+    analytics data, long running data processing operations, client-side
+    templating and pre-rendering of content likely to become visible in the
+    near future. These tasks must share the event loop with other time-critical
+    operations, such as reacting to input and performing script-based
+    animations using `requestAnimationFrame` ([[ANIMATION-TIMING]]). These
+    background tasks are typically performed by scheduling a callback using
+    `[setTimeout]` and running the background task during that callback.</p>
+    <p>A disadvantage of this approach is that the author of the script has no
+    way to inform the user-agent as to whether a given `setTimeout` callback is
+    time-critical or could be delayed until the browser is otherwise idle. In
+    addition, the user agent isn't able to provide the callback with any
+    information about how long it can continue to execute without delaying
+    time-critical operations and causing jank or other user-perceptible delays.
+    As a result, the easiest way forward is for the author is to simply call
+    `setTimeout` with a very small value, and then execute the minimum possible
+    chunk of work in the resulting callback and reschedule additional work with
+    another call to `setTimeout`. This is less than optimal because there is
+    extra overhead from having to post many small tasks on the user agent's
+    event loop and schedule their execution. It also relies on the user-agent
+    interleaving other time-critical work between each of these callbacks
+    appropriately, which is difficult since the user-agent can't make accurate
+    assumptions on how long each of these callbacks are likely to take.</p>
+    <p>The API described in this document allows script authors to request the
+    user-agent to schedule a callback when it would otherwise be idle. The user
+    agent provides an estimation of how long it expects to remain idle as a
+    deadline passed to the callback. The page author can use the deadline to
+    ensure that these background tasks don't impact latency-critical events
+    such as animation and input response.</p>
+    <p>Here is an example of using the API to write a background task.</p>
+    <pre class='example highlight'>
+&lt;!DOCTYPE html&gt;
+&lt;title&gt;Scheduling background tasks using requestIdleCallback&lt;/title&gt;
+&lt;script&gt;
 var requestId = 0;
 var pointsTotal = 0;
 var pointsInside = 0;
@@ -114,7 +132,7 @@ function piStep() {
   return (Math.pow(x, 2) + Math.pow(y, 2) &lt; Math.pow(r, 2))
 }
 function refinePi(deadline) {
-  while (deadline.timeRemaining() > 0) {
+  while (deadline.timeRemaining() &gt; 0) {
     if (piStep())
       pointsInside++;
     pointsTotal++;
@@ -132,65 +150,79 @@ function stop() {
     window.cancelIdleCallback(requestId);
   requestId = 0;
 }
-&lt;/script>
-&lt;button onclick="start()">Click me to start!&lt;/button>
-&lt;button onclick="stop()">Click me to stop!&lt;/button>
-&lt;div id="piEstimate">Not started&lt;/div>
+&lt;/script&gt;
+&lt;button onclick="start()"&gt;Click me to start!&lt;/button&gt;
+&lt;button onclick="stop()"&gt;Click me to stop!&lt;/button&gt;
+&lt;div id="piEstimate"&gt;Not started&lt;/div&gt;
 </pre>
-</section>
-
-<section id='idle_period' class='informative'>
-<h2>Idle Periods</h2>
-
-<p>
-After input processing, rendering and compositing for a given frame has been completed, the user agent's main thread often becomes idle until either: the next frame begins; another pending task becomes eligible to run; or user input is received. This specification provides a means to schedule execution of callbacks during this otherwise idle time via a <code>requestIdleCallback</code> API.
-</p>
-
-<p>
-Callbacks posted via the <code>requestIdleCallback</code> API become eligible to run during user agent defined idle periods. When an idle callback is run it will be given a deadline which corresponds to the end of the current idle period. The decision as to what constitutes an idle period is user agent defined, however the expectation is that they occur in periods of quiescence where the browser expects to be idle.
-</p>
-
-<p>
-One example of an idle period is the time between committing a given frame to the screen and starting processing on the next frame during active animations, as shown in <a href="#figure1"></a>. Such idle periods will occur frequently during active animations and screen updates, but will typically be very short
-(i.e., less than 16ms for devices with a 60Hz vsync cycle).
-</p>
-
-<figure id='figure1'>
-<img alt="Example of an inter-frame idle period." src="images/image01.png">
-<figcaption>Example of an inter-frame idle period</figcaption>
-</figure>
-
-<p class="note">
-The web-developer should be careful to account for all work performed by operations during an idle callback. Some operations, such as resolving a promise or triggering a page layout, may cause
-subsequent tasks to be scheduled to run after the idle callback has finished. In such cases, the application should account for this additional work by yielding before the deadline expires to allow these operations to be performed before the next frame deadline.
-</p>
-
-<p>
-Another example of an idle period is when the user agent is idle with no screen updates occurring. In such a situation the user agent may have no upcoming tasks with which it can bound the end of the idle period. In order to avoid causing user-perceptible delays in unpredictable tasks, such as processing of user input, the length of these idle periods should be capped to a maximum value of <a href="#why50">50ms</a>. Once an idle period is finished the user agent can schedule another idle period if it remains idle, as shown in <a href='#figure2'></a>, to enable background work to continue to occur over longer idle time periods.
-</p>
-
-<figure id='figure2'>
-<img alt="Example of an idle period when there are no pending frame updates." src="images/image00.png">
-<figcaption>Example of an idle period when there are no pending frame updates</figcaption>
-</figure>
-
-<p>
-During an idle period the user agent will run idle callbacks in FIFO order until either the idle period ends or there are no more idle callbacks eligible to be run. As such, the user agent will not necessarily run all currently posted idle callbacks within a single idle period. Any remaining idle tasks are eligible to run during the next idle period.
-</p>
-
-<p>
-Only idle tasks which posted before the start of the current idle period are
-eligible to be run during the current idle period. As a result, if an idle
-callback posts another callback using <code>requestIdleCallback</code>, this
-subsequent callback won't be run during the current idle period. This enables
-idle callbacks to re-post themselves to be run in a future idle
-period if they cannot complete their work by a given deadline - i.e., allowing
-code patterns like the following example, without causing the callback to be
-repeatedly executed during a too-short idle period:
-
-<pre class='example highlight'>
+  </section>
+  <section class='informative'>
+    <h2>Idle Periods</h2>
+    <p>After input processing, rendering and compositing for a given frame has
+    been completed, the user agent's main thread often becomes idle until
+    either: the next frame begins; another pending task becomes eligible to
+    run; or user input is received. This specification provides a means to
+    schedule execution of callbacks during this otherwise idle time via a
+    `requestIdleCallback` API.</p>
+    <p>Callbacks posted via the `requestIdleCallback` API become eligible to
+    run during user agent defined idle periods. When an idle callback is run it
+    will be given a deadline which corresponds to the end of the current idle
+    period. The decision as to what constitutes an idle period is user agent
+    defined, however the expectation is that they occur in periods of
+    quiescence where the browser expects to be idle.</p>
+    <p>One example of an idle period is the time between committing a given
+    frame to the screen and starting processing on the next frame during active
+    animations, as shown in <a href="#figure1"></a>. Such idle periods will
+    occur frequently during active animations and screen updates, but will
+    typically be very short (i.e., less than 16ms for devices with a 60Hz vsync
+    cycle).</p>
+    <figure id='figure1'>
+      <img alt="Example of an inter-frame idle period." src=
+      "images/image01.png">
+      <figcaption>
+        Example of an inter-frame idle period
+      </figcaption>
+    </figure>
+    <p class="note">The web-developer should be careful to account for all work
+    performed by operations during an idle callback. Some operations, such as
+    resolving a promise or triggering a page layout, may cause subsequent tasks
+    to be scheduled to run after the idle callback has finished. In such cases,
+    the application should account for this additional work by yielding before
+    the deadline expires to allow these operations to be performed before the
+    next frame deadline.</p>
+    <p>Another example of an idle period is when the user agent is idle with no
+    screen updates occurring. In such a situation the user agent may have no
+    upcoming tasks with which it can bound the end of the idle period. In order
+    to avoid causing user-perceptible delays in unpredictable tasks, such as
+    processing of user input, the length of these idle periods should be capped
+    to a maximum value of <a href="#why50">50ms</a>. Once an idle period is
+    finished the user agent can schedule another idle period if it remains
+    idle, as shown in <a href='#figure2'></a>, to enable background work to
+    continue to occur over longer idle time periods.</p>
+    <figure id='figure2'>
+      <img alt=
+      "Example of an idle period when there are no pending frame updates." src=
+      "images/image00.png">
+      <figcaption>
+        Example of an idle period when there are no pending frame updates
+      </figcaption>
+    </figure>
+    <p>During an idle period the user agent will run idle callbacks in FIFO
+    order until either the idle period ends or there are no more idle callbacks
+    eligible to be run. As such, the user agent will not necessarily run all
+    currently posted idle callbacks within a single idle period. Any remaining
+    idle tasks are eligible to run during the next idle period.</p>
+    <p>Only idle tasks which posted before the start of the current idle period
+    are eligible to be run during the current idle period. As a result, if an
+    idle callback posts another callback using `requestIdleCallback`, this
+    subsequent callback won't be run during the current idle period. This
+    enables idle callbacks to re-post themselves to be run in a future idle
+    period if they cannot complete their work by a given deadline - i.e.,
+    allowing code patterns like the following example, without causing the
+    callback to be repeatedly executed during a too-short idle period:</p>
+    <pre class='example highlight'>
 function doWork(deadline) {
-  if (deadline.timeRemaining() <= 5) {
+  if (deadline.timeRemaining() &lt;= 5) {
     // This will take more than 5ms so wait until we
     // get called back with a long enough deadline.
     requestIdleCallback(doWork);
@@ -199,60 +231,56 @@ function doWork(deadline) {
   // do work...
 }
 </pre>
-
-<p>
-At the start of the next idle period newly posted idle callbacks are
-appended to the end of the runnable idle callback list, thus
-ensuring that reposting callbacks will be run round-robin style,
-with each callback getting a chance to be run before that of an
-earlier task's reposted callback.
-</p>
-
-<p>
-When the user agent determines that the web
-page is not user visible it can throttle idle periods to reduce the
-power usage of the device, for example, only triggering an idle
-period every 10 seconds rather than continuously.
-</p>
-<p>
-A final subtlety to note is that there is no
-guarantee that a user agent will have any idle CPU time available
-during heavy page load. As such, it is entirely acceptable that the
-user agent does not schedule any idle period, which would result in the
-idle callbacks posted via the <code>requestIdleCallback</code> API
-being postponed for a potentially unbounded amount of time. For cases where the author prefers to execute the callback within an idle period, but requires a time bound within which it can be executed, the author can provide the <code>timeout</code> property in the <code>options</code> argument to <code>requestIdleCallback</code>: if the specified timeout is reached before the callback is executed within an idle period, a task is queued to execute it.
-</p>
-
-<p class="note" id='why50'>
-The maximum deadline of 50ms is derived from studies [[RESPONSETIME]] which show that that a response to user input within 100ms is generally perceived as instantaneous to humans. Capping idle deadlines to 50ms means that even if the user input occurs immediately after the idle task has begun, the user agent still has a remaining 50ms in which to respond to the user input without producing user perceptible lag.
-</p>
-</section>
-
-<section  id="conformance">
-
-<p>The IDL fragments in this specification MUST be interpreted as
-    required for conforming IDL fragments, as described in the Web IDL
-    specification. [[!webidl]]</p>
-
-<p>This specification defines a single conformance class:</p>
-<dl>
-<dt>conforming user agent</dt>
-<dd>
-A user agent is considered to be a conforming user agent if it satisfies all of the MUST-, REQUIRED- and SHALL-level criteria in this specification. A conforming user agent must also be a <a href="http://www.w3.org/TR/WebIDL/#dfn-conforming-implementation">conforming implementation</a> of the IDL fragment in section <a href="#window_extensions"></a>, as described in the Web IDL specification [[!webidl]].
-</p>
-</dd>
-</dl>
-
-</section>
-
-<section id='window_extensions'>
-
-<h2>Window interface extensions</h2>
-
-<p>
-The partial interface in the IDL fragment below is used to expose the <code>requestIdleCallback</code> operation on the <code><a href="http://www.w3.org/TR/html5/browsers.html#the-window-object">Window</a></code> object. [[!HTML5]]
-</p>
-<pre class='idl'>
+    <p>At the start of the next idle period newly posted idle callbacks are
+    appended to the end of the runnable idle callback list, thus ensuring that
+    reposting callbacks will be run round-robin style, with each callback
+    getting a chance to be run before that of an earlier task's reposted
+    callback.</p>
+    <p>When the user agent determines that the web page is not user visible it
+    can throttle idle periods to reduce the power usage of the device, for
+    example, only triggering an idle period every 10 seconds rather than
+    continuously.</p>
+    <p>A final subtlety to note is that there is no guarantee that a user agent
+    will have any idle CPU time available during heavy page load. As such, it
+    is entirely acceptable that the user agent does not schedule any idle
+    period, which would result in the idle callbacks posted via the
+    `requestIdleCallback` API being postponed for a potentially unbounded
+    amount of time. For cases where the author prefers to execute the callback
+    within an idle period, but requires a time bound within which it can be
+    executed, the author can provide the `timeout` property in the `options`
+    argument to `requestIdleCallback`: if the specified timeout is reached
+    before the callback is executed within an idle period, a task is queued to
+    execute it.</p>
+    <p class="note" id='why50'>The maximum deadline of 50ms is derived from
+    studies [[RESPONSETIME]] which show that that a response to user input
+    within 100ms is generally perceived as instantaneous to humans. Capping
+    idle deadlines to 50ms means that even if the user input occurs immediately
+    after the idle task has begun, the user agent still has a remaining 50ms in
+    which to respond to the user input without producing user perceptible
+    lag.</p>
+  </section>
+  <section id="conformance">
+    <p>The IDL fragments in this specification MUST be interpreted as required
+    for conforming IDL fragments, as described in the Web IDL specification.
+    [[!WEBIDL]]</p>
+    <p>This specification defines a single conformance class:</p>
+    <dl>
+      <dt>conforming user agent</dt>
+      <dd>
+        A user agent is considered to be a conforming user agent if it
+        satisfies all of the MUST-, REQUIRED- and SHALL-level criteria in this
+        specification. A conforming user agent must also be a [conforming
+        implementation] of the IDL fragment in section <a href=
+        "#window_extensions"></a>, as described in the Web IDL specification
+        [[!WEBIDL]].
+      </dd>
+    </dl>
+  </section>
+  <section id='window_extensions'>
+    <h2>`Window` interface extensions</h2>
+    <p>The partial interface in the IDL fragment below is used to expose the
+    `requestIdleCallback` operation on the `[Window]` object. [[!HTML5]]</p>
+    <pre class='idl'>
 partial interface Window {
   unsigned long requestIdleCallback(IdleRequestCallback callback, optional IdleRequestOptions options);
   void cancelIdleCallback(unsigned long handle);
@@ -269,166 +297,277 @@ interface IdleDeadline {
 
 callback IdleRequestCallback = void (IdleDeadline deadline);
 </pre>
+    <p>Each `[Window]` has:</p>
+    <ul>
+      <li>A <dfn>list of idle request callbacks</dfn>. The list MUST be
+      initially empty and each entry in this list is identified by a number,
+      which MUST be unique within the list for the lifetime of the `Window`
+      object.</li>
+      <li>A <dfn>list of runnable idle callbacks</dfn>. The list MUST be
+      initially empty and each entry in this list is identified by a number,
+      which MUST be unique within the list of the lifetime of the `Window`
+      object.</li>
+      <li>An <dfn>idle callback identifier</dfn>, which is a number which MUST
+      initially be zero.</li>
+    </ul>
+    <section>
+      <h2>The `requestIdleCallback` method</h2>
+      <p>When `requestIdleCallback(callback, options)` is invoked, the user
+      agent MUST run the following steps:</p>
+      <ol>
+        <li>Let <var>window</var> be this `Window` object.</li>
+        <li>Increment the `window`'s <a>idle callback identifier</a> by one.
+        </li>
+        <li>Let <var>handle</var> be <var>window</var>'s <a>idle callback
+        identifier</a> current value.
+        </li>
+        <li>Append <var>callback</var> to `window`'s <a>list of idle request
+        callbacks</a>, associated with <var>handle</var>.
+        </li>
+        <li>Return <var>handle</var> and then continue running this algorithm
+        asynchronously.</li>
+        <li>If the <var>timeout</var> property is present in <var>options</var>
+        and has a positive value:
+          <ol>
+            <li>Wait for <var>timeout</var> milliseconds.</li>
+            <li>Wait until all invocations of this algorithm, whose
+            <var>timeout</var> added to their posted time occurred before this
+            one's, have completed.</li>
+            <li>Optionally, wait a further user-agent defined length of time.
+              <p class='note'>This is intended to allow user agents to pad
+              timeouts as needed to optimise the power usage of the device. For
+              example, some processors have a low-power mode where the
+              granularity of timers is reduced; on such platforms, user agents
+              can slow timers down to fit this schedule instead of requiring
+              the processor to use the more accurate mode with its associated
+              higher power usage.</p>
+            </li>
+            <li>[Queue a task] on the queue associated with the idle-task [task
+            source], which performs the <a>invoke idle callback timeout
+            algorithm</a>, passing <var>handle</var> and <var>window</var> as
+            arguments.
+            </li>
+          </ol>
+        </li>
+      </ol>
+      <p class="note">`requestIdleCallback` only schedules a single callback,
+      which will be executed during a single <a>idle period</a>. If the
+      callback cannot complete its work before the given <var>deadline</var>
+      then it should call `requestIdleCallback` again (which may be done from
+      within the callback) to schedule a future callback for the continuation
+      of its task, and exit immediately to return control back to the [event
+      loop].</p>
+    </section>
+    <section>
+      <h2>The `cancelIdleCallback` method</h2>
+      <p>The `cancelIdleCallback` method is used to cancel a previously made
+      request to schedule an idle callback. When `cancelIdleCallback(handle)`
+      is invoked, the user agent MUST run the following steps:</p>
+      <ol>
+        <li>Let <var>window</var> be this `Window` object.</li>
+        <li>Find the entry in either the `window`'s <a>list of idle request
+        callbacks</a> or <a>list of runnable idle callbacks</a> that is
+        associated with the value <var>handle</var>.
+        </li>
+        <li>If there is such an entry, remove it from both `window`'s <a>list
+        of idle request callbacks</a> and the <a>list of runnable idle
+        callbacks</a>.
+        </li>
+      </ol>
+      <p class='note'>`cancelIdleCallback` might be invoked for an entry in
+      <var>window</var>'s <a>list of idle request callbacks</a> or the <a>list
+      of runnable idle callbacks</a>. In either case the entry should be
+      removed from the list so that the callback does not run.</p>
+    </section>
+    <section>
+      <h2>The `timeRemaining` method</h2>
+      <p>When the `timeRemaining()` method is invoked on an `IdleDeadline`
+      object it MUST return the amount of time remaining before the callback's
+      deadline as a DOMHighResTimeStamp. The value SHOULD be accurate to 5
+      microseconds - see "Privacy and Security" section of [[!HR-TIME]]. This
+      value is calculated by performing the following steps:</p>
+      <ol>
+        <li>Let <var>deadline</var> be the deadline of the associated callback
+        as a `[DOMHighResTimeStamp]`. [[!HR-TIME-2]]</li>
+        <li>Let <var>now</var> be the value returned by
+        `[performance.now()]`.</li>
+        <li>Let <var>timeRemaining</var> be <var>deadline</var> -
+        <var>now</var>.</li>
+        <li>If <var>timeRemaining</var> is negative, set it to 0.</li>
+        <li>Return <var>timeRemaining</var>.</li>
+      </ol>
+      <p>The `didTimeout` attribute on an `IdleDeadline` object MUST return
+      `true` if the callback was invoked by the <a>invoke idle callback timeout
+      algorithm</a>, and `false` otherwise.</p>
+    </section>
+  </section>
+  <section>
+    <h2>Processing</h2>
+    <section>
+      <h2>Start an event loop's idle period</h2>
+      <p>Whenever the user agent assesses that a given [event loop] is likely
+      to remain idle for a non-trivial amount of time, and that background work
+      could be executed on this event loop without impacting any high priority
+      work occurring on other event-loops, it SHOULD initiate a new idle period
+      for the [event loop].</p>
+      <p class="note">The expectation is that the user agent will initiate idle
+      periods regularly when the event loop becomes idle, for example, in
+      between frame rendering and regularly during times when no frames are
+      being rendered. If the `Document`'s `[hidden](pv-hidden)` attribute
+      ([[PAGE-VISIBILITY]]) is `true` then the user agent can throttle idle
+      period generation, for example limiting the Document to one idle period
+      every 10 seconds to optimize for power usage.</p>
+      <p>When the user agent wishes to start an [event loop]'s idle period, the
+      following steps MUST be performed:</p>
+      <ol>
+        <li>Let <var>last_deadline</var> be the last idle period deadline
+        associated with the current event loop, or 0 if no previous deadline
+        exists.</li>
+        <li>If <var>last_deadline</var> is greater than the current time:
+          <ol>
+            <li>Wait until the current time is greater than or equal to
+            <var>last_deadline</var>.</li>
+          </ol>
+        </li>
+        <li>Let <var>now</var> be the current time.</li>
+        <li>Let <var>deadline</var> be a time in the future until which the
+        browser expects to remain idle.</li>
+        <li>If <var>deadline</var> - <var>now</var> is greater than 50ms, then
+        cap <var>deadline</var> by setting it to be <var>now</var> + 50ms.</li>
+        <li>Let <var>docs</var> be the list of [fully active] `Document`
+        objects associated with the event loop in question.</li>
+        <li>For every <var>document</var> in <var>docs</var> perform the
+        following steps:
+          <ol>
+            <li>Let <var>doclist</var> be <var>document</var>'s `Window`
+            object's <a>list of idle request callbacks</a>.
+            </li>
+            <li>Let <var>runlist</var> be <var>document</var>'s `Window`
+            object's <a>list of runnable idle callbacks</a>.
+            </li>
+            <li>Append all entries from <var>doclist</var> into
+            <var>runlist</var> preserving order.</li>
+            <li>Clear <var>doclist</var>.</li>
+          </ol>
+        </li>
+        <li>[Queue a task] which performs the steps defined in the <a>invoke
+        idle callbacks algorithm</a> with <var>deadline</var> as parameter.
+        </li>
+        <li>Save <var>deadline</var> as the last idle period deadline
+        associated with the current event loop.</li>
+      </ol>
+      <p>The [task source] for these [tasks](task) is the <dfn>idle-task task
+      source</dfn>.</p>
+      <div class="note">
+        <p>The time between <var>now</var> and <var>deadline</var> is referred
+        to as the <dfn>idle period</dfn>. There can only be one idle period
+        active at a given time. The idle period can end early if the user agent
+        determines that it is no longer idle. If so, the next idle period
+        cannot start until after <var>deadline</var>.</p>
+        <p>Also note, the expectation is that the user agent will choose
+        <var>deadline</var> to ensure that no time-critical tasks will be
+        delayed even if a callback runs for the whole time period from
+        <var>now</var> to <var>deadline</var>. As such, it should be set to the
+        minimum of: the closest timeout in the [list of active timers] as set
+        via `[setTimeout]` and `[setInterval]`; the scheduled runtime for
+        pending animation callbacks posted via `[requestAnimationFrame]`;
+        pending internal timeouts such as deadlines to start rendering the next
+        frame, process audio or any other internal task the user agent deems
+        important; and a maximum cap of 50ms in the future to ensure
+        responsiveness to unpredictable user input within the threshold of
+        human perception.</p>
+      </div>
+    </section>
+    <section>
+      <h2>Invoke idle callbacks algorithm</h2>
+      <p>The <dfn>invoke idle callbacks algorithm</dfn>:</p>
+      <ol>
+        <li>Let <var>docs</var> be the list of [fully active] `Document`
+        objects whose `Window` object's <a>list of runnable idle callbacks</a>
+        is not empty.
+        </li>
+        <li>Let <var>now</var> be the current time.</li>
+        <li>If <var>now</var> is less than <var>deadline</var>:
+          <ol>
+            <li>Select any <var>document</var> from <var>docs</var>.</li>
+            <li>Pop <var>callback</var> from <var>document</var>'s `Window`
+            object's <a>list of runnable idle callbacks</a>.
+            </li>
+            <li>If <var>document</var>'s `Window` object's <a>list of runnable
+            idle callbacks</a> is now empty, remove <var>document</var> from
+            <var>docs</var>.
+            </li>
+            <li>Let <var>deadlineArg</var> be an `IdleDeadline` constructed
+            with the given <var>deadline</var> and the `didTimeout` attribute
+            set to `false`.</li>
+            <li>Call <var>callback</var> with <var>deadlineArg</var> as its
+            argument. If an uncaught runtime script error occurs, then [report
+            the error].</li>
+            <li>If <var>docs</var> is not empty, the user agent SHOULD [queue a
+            task] which performs the steps in the <a>invoke idle callbacks
+            algorithm</a> with <var>deadline</var> as parameter.
+            </li>
+          </ol>
+        </li>
+      </ol>
+      <p class="note">The user agent is free to end an idle period early, even
+      if <var>deadline</var> has not yet occurred, by not executing the last
+      step of the above algorithm. For example, the user agent may decide to do
+      this if it determines that higher priority work has become runnable.</p>
+    </section>
+    <section>
+      <h2>Invoke idle callback timeout algorithm</h2>
+      <p>The <dfn>invoke idle callback timeout algorithm</dfn>:</p>
+      <ol>
+        <li>Let <var>callback</var> be the result of finding the entry in <var>
+          window</var>'s <a>list of idle request callbacks</a> or the <a>list
+          of runnable idle callbacks</a> that is associated with the value
+          given by the <var>handle</var> argument passed to the algorithm.
+        </li>
+        <li>If <var>callback</var> is not undefined:
+          <ol>
+            <li>Remove <var>callback</var> from both <var>window's <a>list of
+            idle request callbacks</a> and the <a>list of runnable idle
+            callbacks</a>.</var></li>
+            <li>Let <var>now</var> be the current time.</li>
+            <li>Let <var>deadlineArg</var> be an `IdleDeadline` constructed
+            with a deadline of <var>now</var> and the `didTimeout` attribute
+            set to `true`.</li>
+            <li>Call <var>callback</var> with <var>deadlineArg</var> as its
+            argument. If an uncaught runtime script error occurs, then [report
+            the error].</li>
+          </ol>
+        </li>
+      </ol>
+    </section>
+  </section>
+  <section>
+    <h2>Privacy and Security</h2>
+    <p>TODO</p>
+  </section>
+  <section id="acknowledgements" class="appendix">
+    <h2>Acknowledgments</h2>
+    <p>The editors would like to thank the following people for contributing to
+    this specification: Sami Kyostila, Alex Clarke, Boris Zbarsky, Marcos
+    Caceres, Jonas Sicking, Robert O'Callahan, David Baron, Todd Reifsteck,
+    Tobin Titus, Elliott Sprehn, Tetsuharu OHZEKI, Lon Ingram, Domenic Denicola
+    and Philippe Le Hegaret.</p>
+  </section>
+</body>
+</html>
 
-<p>
-Each <code>Window</code> has:
-</p>
-<ul>
-<li>A <dfn>list of idle request callbacks</dfn>. The list MUST be initially empty and each entry in this list is identified by a number, which MUST be unique within the list for the lifetime of the <code>Window</code> object.</li>
-<li>A <dfn>list of runnable idle callbacks</dfn>. The list MUST be initially empty and each entry in this list is identified by a number, which MUST be unique within the list of the lifetime of the <code>Window</code> object.</li>
-<li>An <dfn>idle callback identifier</dfn>, which is a number which MUST initially be zero.</li>
-</ul>
-<p>
-When <code>requestIdleCallback(callback, options)</code> is invoked, the user agent MUST run the following steps:</p>
-<ol>
-<li>Let <var>window</var> be this <code>Window</code> object.</li>
-<li>Increment the <code>window</code>'s <a>idle callback identifier</a> by one.</li>
-<li>Let <var>handle</var> be <var>window</var>'s <a>idle callback identifier</a> current value.</li>
-<li>Append <var>callback</var> to <code>window</code>'s <a>list of idle request callbacks</a>, associated with <var>handle</var>.</li>
-<li>Return <var>handle</var> and then continue running this
-algorithm asynchronously.</li>
-<li>If the <var>timeout</var> property is present in <var>options</var> and has a positive value:
-<ol type='a'>
-  <li>Wait for <var>timeout</var> milliseconds.</li>
-  <li>Wait until all invocations of this algorithm, whose <var>timeout</var> added to their posted time occurred before this one's, have completed.</li>
-  <li>Optionally, wait a further user-agent defined length of time.
-  <p class='note'>
-This is intended to allow user agents to pad timeouts as needed to optimise the power usage of the device. For example, some processors have a low-power mode where the granularity of timers is reduced; on such platforms, user agents can slow timers down to fit this schedule instead of requiring the
-processor to use the more accurate mode with its associated higher power usage.
-  </p>
-</li>
-<li><a href="http://www.w3.org/TR/html5/webappapis.html#queue-a-task">Queue a task</a> on the queue associated with the idle-task task
-source, which performs the <a>invoke idle callback timeout algorithm</a>, passing <var>handle</var> and <var>window</var> as arguments.
-</li>
-</ol>
-</li>
-</ol>
-<p class="note">
-<code>requestIdleCallback</code> only schedules a single callback, which will be executed during a single <a>idle period</a>. If the callback cannot complete its work before the given <var>deadline</var> then it should call <code>requestIdleCallback</code> again (which may be done from within the callback) to schedule a future callback for the continuation of its task, and exit immediately to return control back to the <a href='http://www.w3.org/TR/html5/webappapis.html#event-loop'>event loop</a>.
-</p>
-<p>
-The <code>cancelIdleCallback</code> method is used to cancel a previously made request to schedule an idle callback.
-When <code>cancelIdleCallback(handle)</code> is called, the user agent MUST run the following steps:
-</p>
-<ol>
-<li>Let <var>window</var> be this <code>Window</code> object.</li>
-<li>Find the entry in either the <code>window</code>'s <a>list of idle request callbacks</a> or <a>list of runnable idle callbacks</a> that is associated with the value <var>handle</var>.</li>
-<li>If there is such an entry, remove it from both <code>window</code>'s <a>list of idle request callbacks</a> and the <a>list of runnable idle callbacks</a>.
-</li>
-</ol>
-<p class='note'>
-<code>cancelIdleCallback</code> might be invoked for an entry in <var>window</var>'s <a>list of idle request callbacks</a> or the <a>list of runnable idle callbacks</a>. In either case the entry should be removed from the list so that the callback does not run.
-</p>
-<p>
-When the <code>timeRemaining()</code> function is called on an <code>IdleDeadline</code> object it MUST return the amount of time remaining before the callback's deadline as a DOMHighResTimeStamp. The value SHOULD be accurate to 5 microseconds - see <a href="http://w3.org/TR/hr-time-2/#privacy-security">Privacy and Security</a>.
-This value is calculated by performing the following steps:
-<ol>
-<li>Let <var>deadline</var> be the deadline of the associated callback as a <code><a href="http://www.w3.org/TR/hr-time-2/#dom-domhighrestimestamp">DOMHighResTimeStamp</a></code>. [[!hr-time-2]]</li>
-<li>Let <var>now</var> be the value returned by <code><a href="http://www.w3.org/TR/hr-time-2/#widl-Performance-now-DOMHighResTimeStamp">performance.now()</a></code>. [[!hr-time-2]]</li>
-<li>Let <var>timeRemaining</var> be <var>deadline</var> - <var>now</var>.</li>
-<li>If <var>timeRemaining</var> is negative, set it to 0.</li>
-<li>Return <var>timeRemaining</var>.</li>
-</ol>
- </p>
-<p>The <code>didTimeout</code> attribute on an <code>IdleDeadline</code> object MUST return <code>true</code> if the callback was invoked by the <a>invoke idle callback timeout algorithm</a>, and <code>false</code> otherwise.
-</p>
-</section>
-<section>
-<h2>Processing Model</h2>
-<p>
-Whenever the user agent assesses that a given <a href="http://www.w3.org/TR/html5/webappapis.html#event-loop">event loop</a> is likely to remain idle for a non-trivial amount of time, and that background work could be executed on this event loop without impacting any high priority work occurring on other event-loops, it SHOULD initiate a new idle period for the <a href="http://www.w3.org/TR/html5/webappapis.html#event-loop">event loop</a>.
-</p>
-
-<p class="note">
-The expectation is that the user agent will initiate idle periods regularly when the event loop becomes idle, for example, in between frame rendering and regularly during times when no frames are being rendered. If the <code>Document</code>'s <code><a href="http://www.w3.org/TR/page-visibility/#dom-document-hidden">hidden</a></code> attribute
-[[page-visibility]] is true then the user agent can throttle idle period generation, for example limiting the Document to one idle period every 10 seconds to optimize for power usage.
-</p>
-
-<p>When the user agent wishes to start an <a href="http://www.w3.org/TR/html5/webappapis.html#event-loop">event loop</a>'s idle period, the following steps MUST be performed:</p>
-<ol>
-<li>Let <var>last_deadline</var> be the last idle period deadline associated with the current event loop, or 0 if no previous deadline exists.</li>
-<li>If <var>last_deadline</var> is greater than the current time:
-<ol>
-<li>Wait until the current time is greater than or equal to <var>last_deadline</var>.</li>
-</ol>
-</li>
-<li>Let <var>now</var> be the current time.</li>
-<li>Let <var>deadline</var> be a time in the future until which the browser expects to remain idle.</li>
-<li>If <var>deadline</var> - <var>now</var> is greater than 50ms, then cap <var>deadline</var> by setting it to
-be <var>now</var> + 50ms.</li>
-<li>Let <var>docs</var> be the list of <a href="http://www.w3.org/TR/html5/browsers.html#fully-active">fully active</a> <code>Document</code> objects associated with the event loop in question.</li>
-<li>For every <var>document</var> in <var>docs</var> perform the following steps:
-<ol type="a">
-<li>Let <var>doclist</var> be <var>document</var>'s <code>Window</code> object's <a>list of idle request callbacks</a>.</li>
-<li>Let <var>runlist</var> be <var>document</var>'s <code>Window</code> object's <a>list of runnable idle callbacks</a>.</li>
-<li>Append all entries from <var>doclist</var> into <var>runlist</var> preserving order.</li>
-<li>Clear <var>doclist</var>.</li>
-</ol>
-</li>
-<li><a href="http://www.w3.org/TR/html5/webappapis.html#queue-a-task">Queue a task</a> which performs the steps defined in the <a>invoke idle callbacks algorithm</a> with <var>deadline</var> as parameter.</li>
-<li>
-Save <var>deadline</var> as the last idle period deadline associated with the current event loop.</li>
-</ol>
-<p>The <a href="http://www.w3.org/TR/2011/WD-html5-20110525/webappapis.html#task-source">task source</a> for these <a href="http://www.w3.org/TR/2011/WD-html5-20110525/webappapis.html#concept-task">tasks</a></var> is the <dfn>idle-task task source</dfn>.</p>
-
-<div class="note">
-<p>
-The time between <var>now</var> and <var>deadline</var> is referred to as the <dfn>idle period</dfn>. There can only be one
-idle period active at a given time. The idle period can end early
-if the user agent determines that it is no longer idle. If
-so, the next idle period cannot start until after <var>deadline</var>.
-</p>
-<p>
-Also note, the expectation is
-that the user agent will choose <var>deadline</var> to ensure that no time-critical
-tasks will be delayed even if a callback runs for the whole time
-period from <var>now</var> to <var>deadline</var>. As such, it should be set
-to the minimum of: the closest timeout in the
-<a href="http://www.w3.org/TR/html5/webappapis.html#list-of-active-timers">list of active timers</a> as set via
-<code><a href="http://www.w3.org/TR/html5/webappapis.html#dom-windowtimers-settimeout">setTimeout</a></code> and <code><a href="http://www.w3.org/TR/html5/webappapis.html#dom-windowtimers-setinterval">setInterval</a></code>; the scheduled runtime
-for pending animation callbacks posted via <code><a href="http://www.w3.org/TR/animation-timing/#dom-windowanimationtiming-requestanimationframe">requestAnimationFrame</a></code> [[animation-timing]];
-pending internal timeouts such as deadlines to start rendering the
-next frame, process audio or any
-other internal task the user agent deems important; and a maximum
-cap of 50ms in the future to ensure responsiveness to unpredictable
-user input within the threshold of human perception.</p>
-</div>
-<p>The <dfn>invoke idle callbacks algorithm</dfn>:</p>
-<ol>
-<li>Let <var>docs</var> be the list of <a href="http://www.w3.org/TR/html5/browsers.html#fully-active">fully active</a> <code>Document</code> objects whose <code>Window</code> object's <a>list of runnable idle callbacks</a> is not empty.</li>
-<li>Let <var>now</var> be the current time.</li>
-<li>If <var>now</var> is less than <var>deadline</var>:
-<ol>
-<li>Select any <var>document</var> from <var>docs</var>.</li>
-<li>Pop <var>callback</var> from <var>document</var>'s <code>Window</code> object's <a>list of runnable idle callbacks</a>.</li>
-<li>If <var>document</var>'s <code>Window</code> object's <a>list of runnable idle callbacks</a> is now empty, remove <var>document</var> from <var>docs</var>.</li>
-<li>Let <var>deadlineArg</var> be an <code>IdleDeadline</code> constructed
-with the given <var>deadline</var> and the <code>didTimeout</code> attribute set to <code>false</code>.</li>
-<li>Call <var>callback</var> with <var>deadlineArg</var> as its argument. If an uncaught runtime script error occurs, then <a href="http://www.w3.org/TR/html5/webappapis.html#report-the-error">report the error</a>.</li>
-<li>If <var>docs</var> is not empty, the user agent SHOULD <a href="http://www.w3.org/TR/html5/webappapis.html#queue-a-task">queue a task</a> which performs the steps in the <a>invoke idle callbacks algorithm</a> with <var>deadline</var> as parameter.</li>
-</ol>
-</li>
-</ol>
-
-<p class="note">
-The user agent is free to end an idle period early, even if <var>deadline</var> has not yet occurred, by not queuing the <a>invoke idle callbacks algorithm</a> continuation task in <a href='#s2.4'>step 2.4</a> of the <a>invoke idle callbacks algorithm</a>. The user agent may decide to do this if it determines that higher priority work has become runnable.
-</p>
-
-<p>The <dfn>invoke idle callback timeout algorithm</dfn>:</p>
-<ol>
-<li>Let <var>callback</var> be the result of finding the entry in <var>window</var>'s <a>list of idle request callbacks</a> or the <a>list of runnable idle callbacks</a> that is associated with the value given by the <var>handle</var> argument passed to the algorithm.</li>
-<li>If <var>callback</var> is not undefined:
-<ol>
-<li>Remove <var>callback</var> from both <var>window</a>'s <a>list of idle request callbacks</a> and the <a>list of runnable idle callbacks</a>.</li>
-<li>Let <var>now</var> be the current time.</li>
-<li>Let <var>deadlineArg</var> be an <code>IdleDeadline</code> constructed with a deadline of <var>now</var> and the <code>didTimeout</code> attribute set to <code>true</code>.</li>
-<li>Call <var>callback</var> with <var>deadlineArg</var> as its argument. If an uncaught runtime script error occurs, then <a href="http://www.w3.org/TR/html5/webappapis.html#report-the-error">report the error</a>.</li>
-</ol>
-</li>
-</ol>
-</section>
-<section id="acknowledgements" class="appendix">
-<h2>Acknowledgments</h2>
-<p>
-The editors would like to thank the following people for contributing to this specification: Sami Kyostila, Alex Clarke, Boris Zbarsky, Marcos Caceres, Jonas Sicking, Robert O'Callahan, David Baron, Todd Reifsteck, Tobin Titus, Ilya Grigorik, Elliott Sprehn, Tetsuharu OHZEKI, Lon Ingram, Domenic Denicola and Philippe Le Hegaret.
-</p>
+[setTimeout]: http://www.w3.org/TR/html5/webappapis.html#dom-windowtimers-settimeout
+[setInterval]: http://www.w3.org/TR/html5/webappapis.html#dom-windowtimers-setinterval
+[conforming implementation]: http://www.w3.org/TR/WebIDL/#dfn-conforming-implementation
+[Window]: http://www.w3.org/TR/html5/browsers.html#the-window-object
+[queue a task]: http://www.w3.org/TR/html5/webappapis.html#queue-a-task
+[task]: http://www.w3.org/TR/2011/WD-html5-20110525/webappapis.html#concept-task
+[task source]: http://www.w3.org/TR/2011/WD-html5-20110525/webappapis.html#task-source
+[event loop]: http://www.w3.org/TR/html5/webappapis.html#event-loop
+[DOMHighResTimestamp]: http://www.w3.org/TR/hr-time-2/#dom-domhighrestimestamp
+[performance.now()]: http://www.w3.org/TR/hr-time-2/#widl-Performance-now-DOMHighResTimeStamp
+[pv-hidden]: http://www.w3.org/TR/page-visibility/#dom-document-hidden
+[fully active]: http://www.w3.org/TR/html5/browsers.html#fully-active
+[list of active timers]: http://www.w3.org/TR/html5/webappapis.html#list-of-active-timers
+[requestAnimationFrame]: http://www.w3.org/TR/animation-timing/#dom-windowanimationtiming-requestanimationframe
+[report the error]: http://www.w3.org/TR/html5/webappapis.html#report-the-error
