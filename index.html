@@ -236,6 +236,12 @@ function doWork(deadline) {
     reposting callbacks will be run round-robin style, with each callback
     getting a chance to be run before that of an earlier task's reposted
     callback.</p>
+    <p class="note">Future versions of this specification could allow other
+    scheduling strategies. For example, schedule idle callback within the same
+    idle period, a period that has at least <var>X</var> milliseconds of idle
+    time, and so on. Current specification only supports the case for
+    scheduling into the next idle period, at which time the callback can
+    execute its logic, or repost itself into the next idle period.</p>
     <p>When the user agent determines that the web page is not user visible it
     can throttle idle periods to reduce the power usage of the device, for
     example, only triggering an idle period every 10 seconds rather than
