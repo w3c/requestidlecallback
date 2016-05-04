@@ -549,7 +549,17 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
   </section>
   <section>
     <h2>Privacy and Security</h2>
-    <p>TODO</p>
+    <p>When an idle callback is scheduled the user agent provides an estimate
+    of how long it expects to remain idle. This information can be used to
+    estimate the time taken by other application tasks and related browser work
+    within that frame. However, developers can already access this information
+    via other means - e.g. mark beginning of the frame via
+    `requestAnimationFrame`, estimate the time of the next frame, and use that
+    information to compute "remaining time" within any callback.</p>
+    <p>To mitigate cache and statistical fingerprinting attacks, the resolution
+    of the time estimates returned by the <a>IdleDeadline</a> interface should
+    be set to the same 5 microsecond minimum as the `Performance` interface
+    defined in [[HR-TIME]].</p>
   </section>
   <section id="acknowledgements" class="appendix">
     <h2>Acknowledgments</h2>
