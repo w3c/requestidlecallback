@@ -415,8 +415,8 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
       <p>Whenever the user agent assesses that a given [event loop] is likely
       to remain idle for a non-trivial amount of time, and that background work
       could be executed on this event loop without impacting any high priority
-      work occurring on other event-loops, it SHOULD initiate a new idle period
-      for the [event loop].</p>
+      work occurring on other event-loops, or elsewhere, it SHOULD initiate a
+      new idle period for the [event loop].</p>
       <p class="note">The expectation is that the user agent will initiate idle
       periods regularly when the event loop becomes idle, for example, in
       between frame rendering and regularly during times when no frames are
