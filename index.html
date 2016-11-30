@@ -213,6 +213,14 @@ function stop() {
     eligible to be run. As such, the user agent will not necessarily run all
     currently posted idle callbacks within a single idle period. Any remaining
     idle tasks are eligible to run during the next idle period.</p>
+    <p class="note">To deliver the best performance developers are encouraged
+    to eliminate unnecessary callbacks (e.g. requestAnimationFrame, setTimeout,
+    and so on) that do not perform meaningful work; do not keep such callbacks
+    firing and waiting for events to react, instead schedule them as necessary
+    to react to events once they become available. Such pattern improves
+    overall efficiency, and enables the user agent to schedule long idle
+    callbacks (up to 50ms) that can be used to efficiently perform large blocks
+    of background work.</p>
     <p>Only idle tasks which posted before the start of the current idle period
     are eligible to be run during the current idle period. As a result, if an
     idle callback posts another callback using `requestIdleCallback`, this
