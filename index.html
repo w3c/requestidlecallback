@@ -389,17 +389,17 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
     <section>
       <h2>The `timeRemaining` method</h2>
       <p>When the `timeRemaining()` method is invoked on an `IdleDeadline`
-      object it MUST return the amount of time remaining before the callback's
-      deadline as a DOMHighResTimeStamp. The value SHOULD be accurate to 5
-      microseconds - see "Privacy and Security" section of [[!HR-TIME]]. This
-      value is calculated by performing the following steps:</p>
+      object it MUST return the duration, as a DOMHighResTimeStamp, between the
+      current time and the `deadline` argument passed to <a>IdleDeadline</a>.
+      The value SHOULD be accurate to 5 microseconds - see "Privacy and
+      Security" section of [[!HR-TIME]]. This value is calculated by performing
+      the following steps:</p>
       <ol>
-        <li>Let <var>deadline</var> be the deadline of the associated callback
-        as a `[DOMHighResTimeStamp]`. [[!HR-TIME-2]]</li>
         <li>Let <var>now</var> be the value returned by
         `[performance.now()]`.</li>
-        <li>Let <var>timeRemaining</var> be <var>deadline</var> -
-        <var>now</var>.</li>
+        <li>Let <var>timeRemaining</var> be `deadline` argument passed to
+        <a>IdleDeadline</a> - <var>now</var>.
+        </li>
         <li>If <var>timeRemaining</var> is negative, set it to 0.</li>
         <li>Return <var>timeRemaining</var>.</li>
       </ol>
