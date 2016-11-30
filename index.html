@@ -328,8 +328,8 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         <li>Let <var>handle</var> be <var>window</var>'s <a>idle callback
         identifier</a> current value.
         </li>
-        <li>Append <var>callback</var> to `window`'s <a>list of idle request
-        callbacks</a>, associated with <var>handle</var>.
+        <li>Push <var>callback</var> to the end of `window`'s <a>list of idle
+        request callbacks</a>, associated with <var>handle</var>.
         </li>
         <li>Return <var>handle</var> and then continue running this algorithm
         asynchronously.</li>
@@ -497,8 +497,8 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         <li>If <var>now</var> is less than <var>deadline</var>:
           <ol>
             <li>Select any <var>document</var> from <var>docs</var>.</li>
-            <li>Pop <var>callback</var> from <var>document</var>'s `Window`
-            object's <a>list of runnable idle callbacks</a>.
+            <li>Pop the top <var>callback</var> from <var>document</var>'s
+            `Window` object's <a>list of runnable idle callbacks</a>.
             </li>
             <li>If <var>document</var>'s `Window` object's <a>list of runnable
             idle callbacks</a> is now empty, remove <var>document</var> from
