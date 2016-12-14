@@ -213,6 +213,14 @@ function stop() {
     eligible to be run. As such, the user agent will not necessarily run all
     currently posted idle callbacks within a single idle period. Any remaining
     idle tasks are eligible to run during the next idle period.</p>
+    <p class="note">To deliver the best performance developers are encouraged
+    to eliminate unnecessary callbacks (e.g. requestAnimationFrame, setTimeout,
+    and so on) that do not perform meaningful work; do not keep such callbacks
+    firing and waiting for events to react, instead schedule them as necessary
+    to react to events once they become available. Such pattern improves
+    overall efficiency, and enables the user agent to schedule long idle
+    callbacks (up to 50ms) that can be used to efficiently perform large blocks
+    of background work.</p>
     <p>Only idle tasks which posted before the start of the current idle period
     are eligible to be run during the current idle period. As a result, if an
     idle callback posts another callback using `requestIdleCallback`, this
@@ -328,11 +336,17 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         <li>Let <var>handle</var> be <var>window</var>'s <a>idle callback
         identifier</a> current value.
         </li>
-        <li>Append <var>callback</var> to `window`'s <a>list of idle request
-        callbacks</a>, associated with <var>handle</var>.
+        <li>Push <var>callback</var> to the end of `window`'s <a>list of idle
+        request callbacks</a>, associated with <var>handle</var>.
         </li>
         <li>Return <var>handle</var> and then continue running this algorithm
-        asynchronously.</li>
+        asynchronously.
+          <p class="note">The following steps run in parallel and queue a timer
+          similar to `setTimeout()` if the optional `timeout` property is
+          provided. From here, the idle and timeout callbacks are raced and
+          cancel each other—e.g. if the idle callback is scheduled first, then
+          it cancels the timeout callback, and vice versa.</p>
+        </li>
         <li>If the <var>timeout</var> property is present in <var>options</var>
         and has a positive value:
           <ol>
@@ -389,17 +403,17 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
     <section>
       <h2>The `timeRemaining` method</h2>
       <p>When the `timeRemaining()` method is invoked on an `IdleDeadline`
-      object it MUST return the amount of time remaining before the callback's
-      deadline as a DOMHighResTimeStamp. The value SHOULD be accurate to 5
-      microseconds - see "Privacy and Security" section of [[!HR-TIME]]. This
-      value is calculated by performing the following steps:</p>
+      object it MUST return the duration, as a DOMHighResTimeStamp, between the
+      current time and the `deadline` argument passed to <a>IdleDeadline</a>.
+      The value SHOULD be accurate to 5 microseconds - see "Privacy and
+      Security" section of [[!HR-TIME]]. This value is calculated by performing
+      the following steps:</p>
       <ol>
-        <li>Let <var>deadline</var> be the deadline of the associated callback
-        as a `[DOMHighResTimeStamp]`. [[!HR-TIME-2]]</li>
         <li>Let <var>now</var> be the value returned by
         `[performance.now()]`.</li>
-        <li>Let <var>timeRemaining</var> be <var>deadline</var> -
-        <var>now</var>.</li>
+        <li>Let <var>timeRemaining</var> be `deadline` argument passed to
+        <a>IdleDeadline</a> - <var>now</var>.
+        </li>
         <li>If <var>timeRemaining</var> is negative, set it to 0.</li>
         <li>Return <var>timeRemaining</var>.</li>
       </ol>
@@ -497,8 +511,8 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         <li>If <var>now</var> is less than <var>deadline</var>:
           <ol>
             <li>Select any <var>document</var> from <var>docs</var>.</li>
-            <li>Pop <var>callback</var> from <var>document</var>'s `Window`
-            object's <a>list of runnable idle callbacks</a>.
+            <li>Pop the top <var>callback</var> from <var>document</var>'s
+            `Window` object's <a>list of runnable idle callbacks</a>.
             </li>
             <li>If <var>document</var>'s `Window` object's <a>list of runnable
             idle callbacks</a> is now empty, remove <var>document</var> from
