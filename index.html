@@ -328,9 +328,9 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
       <li>An <dfn>idle callback identifier</dfn>, which is a number which MUST
       initially be zero.</li>
     </ul>
-    <p>Each <a>IdleDeadline</a> has an [internal slot] which holds a
+    <p>Each <a>IdleDeadline</a> has an associated <dfn>time</dfn> which holds a
     [DOMHighResTimeStamp] representing the absolute time in milliseconds of the
-    deadline. This slot MUST be populated when the <a>IdleDeadline</a> is
+    deadline. This MUST be populated when the <a>IdleDeadline</a> is
     created.</p>
     <section>
       <h2>The `requestIdleCallback` method</h2>
@@ -411,16 +411,15 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
       <h2>The `timeRemaining` method</h2>
       <p>When the `timeRemaining()` method is invoked on an <a>IdleDeadline</a>
       object it MUST return the duration, as a [DOMHighResTimeStamp], between
-      the current time and the [internal slot] on <a>IdleDeadline</a> which
-      stores it's absolute deadline.
-      The value SHOULD be accurate to 5 microseconds - see "Privacy and
+      the current time and the <a>time</a> associated with the <a>IdleDeadline</a>
+      object. The value SHOULD be accurate to 5 microseconds - see "Privacy and
       Security" section of [[!HR-TIME]]. This value is calculated by performing
       the following steps:</p>
       <ol>
         <li>Let <var>now</var> be a [DOMHighResTimeStamp] representing
-        the current time in milliseconds.</li>
-        <li>Let <var>deadline</var> be the value of the <a>IdleDeadline</a>
-        object's [internal slot] which holds the absolute deadline.</li>
+        [current high resolution time] in milliseconds.</li>
+        <li>Let <var>deadline</var> be the <a>time</a> associated with the
+        <a>IdleDeadline</a> object.</li>
         <li>Let <var>timeRemaining</var> be <var>deadline</var> -
         <var>now</var>.</li>
         <li>If <var>timeRemaining</var> is negative, set it to 0.</li>
@@ -525,9 +524,9 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
             <li>If <var>document</var>'s `Window` object's <a>list of runnable
             idle callbacks</a> is now empty, remove <var>document</var> from
             <var>docs</var>. </li>
-            <li>Let <var>deadlineArg</var> be a new <a>IdleDeadline</a>. Store
-            <var>deadline</var> in an [internal slot] on <var>deadlineArg</var>
-            as it's absolute deadline and set the `didTimeout` attribute to
+            <li>Let <var>deadlineArg</var> be a new <a>IdleDeadline</a>.
+            Set the <a>time</a> associated with <var>deadlineArg</var> to
+            <var>deadline</var> and set the `didTimeout` attribute to
             `false`.</li>
             <li>Call <var>callback</var> with <var>deadlineArg</var> as its
             argument. If an uncaught runtime script error occurs, then [report
@@ -558,10 +557,9 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
             idle request callbacks</a> and the <a>list of runnable idle
             callbacks</a>.</var></li>
             <li>Let <var>now</var> be the current time.</li>
-            <li>Let <var>deadlineArg</var> be a new <a>IdleDeadline</a>. Store
-            <var>now</var> in an [internal slot] on <var>deadlineArg</var>
-            as it's absolute deadline and set the `didTimeout` attribute to
-            `true`.</li>
+            <li>Let <var>deadlineArg</var> be a new <a>IdleDeadline</a>.
+            Set the <a>time</a> associated with <var>deadlineArg</var> to
+            <var>now</var> and set the `didTimeout` attribute to `true`.</li>
             <li>Call <var>callback</var> with <var>deadlineArg</var> as its
             argument. If an uncaught runtime script error occurs, then [report
             the error].</li>
@@ -589,8 +587,8 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
     <p>The editors would like to thank the following people for contributing to
     this specification: Sami Kyostila, Alex Clarke, Boris Zbarsky, Marcos
     Caceres, Jonas Sicking, Robert O'Callahan, David Baron, Todd Reifsteck,
-    Tobin Titus, Elliott Sprehn, Tetsuharu OHZEKI, Lon Ingram, Domenic Denicola
-    and Philippe Le Hegaret.</p>
+    Tobin Titus, Elliott Sprehn, Tetsuharu OHZEKI, Lon Ingram, Domenic Denicola,
+    Philippe Le Hegaret and Anne van Kesteren .</p>
   </section>
 </body>
 </html>
@@ -604,9 +602,9 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
 [task source]: http://www.w3.org/TR/2011/WD-html5-20110525/webappapis.html#task-source
 [event loop]: http://www.w3.org/TR/html5/webappapis.html#event-loop
 [DOMHighResTimestamp]: http://www.w3.org/TR/hr-time-2/#dom-domhighrestimestamp
+[current high resolution time] https://w3c.github.io/hr-time/#dfn-current-high-resolution-time
 [pv-hidden]: http://www.w3.org/TR/page-visibility/#dom-document-hidden
 [fully active]: http://www.w3.org/TR/html5/browsers.html#fully-active
 [list of active timers]: http://www.w3.org/TR/html5/webappapis.html#list-of-active-timers
 [requestAnimationFrame]: http://www.w3.org/TR/animation-timing/#dom-windowanimationtiming-requestanimationframe
 [report the error]: http://www.w3.org/TR/html5/webappapis.html#report-the-error
-[internal slot]: https://tc39.github.io/ecma262/#sec-object-internal-methods-and-internal-slots
