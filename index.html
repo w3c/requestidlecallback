@@ -293,7 +293,9 @@ function doWork(deadline) {
   <section id='window_extensions'>
     <h2>`Window` interface extensions</h2>
     <p>The partial interface in the IDL fragment below is used to expose the
-    `requestIdleCallback` operation on the `[Window]` object. [[!HTML5]]</p>
+    `requestIdleCallback` operation on the
+    <code><dfn data-cite="HTML5#the-window-object">Window</dfn></code> object.
+    [[!HTML5]]</p>
     <pre class='idl'>
 partial interface Window {
   unsigned long requestIdleCallback(IdleRequestCallback callback, optional IdleRequestOptions options);
@@ -324,14 +326,13 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
       <li>An <dfn>idle callback identifier</dfn>, which is a number which MUST
       initially be zero.</li>
     </ul>
-    <p>Each <a>IdleDeadline</a> has an associated <dfn>time</dfn> which holds a
-    [DOMHighResTimeStamp] representing the absolute time in milliseconds of the
-    deadline. This MUST be populated when the <a>IdleDeadline</a> is
-    created.</p>
     <section>
-      <h2>The `requestIdleCallback` method</h2>
-      <p>When `requestIdleCallback(callback, options)` is invoked, the user
-      agent MUST run the following steps:</p>
+      <h2>The <code><dfn data-dfn-for="Window">requestIdleCallback</dfn></code>
+      method</h2>
+      <p>When `requestIdleCallback(callback, options)` is invoked with a given
+      <code><dfn>IdleRequestCallback</dfn></code> and optional
+      <code><dfn>IdleRequestOptions</dfn></code>, the user agent MUST run the
+      following steps:</p>
       <ol>
         <li>Let <var>window</var> be this `Window` object.</li>
         <li>Increment the `window`'s <a>idle callback identifier</a> by one.
@@ -350,8 +351,9 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
           cancel each other—e.g. if the idle callback is scheduled first, then
           it cancels the timeout callback, and vice versa.</p>
         </li>
-        <li>If the <var>timeout</var> property is present in <var>options</var>
-        and has a positive value:
+        <li>If the <code><dfn data-dfn-for="IdleRequestOptions">timeout</dfn>
+        </code> property is present in <var>options</var> and has a positive
+        value:
           <ol>
             <li>Wait for <var>timeout</var> milliseconds.</li>
             <li>Wait until all invocations of this algorithm, whose
@@ -383,7 +385,8 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
       loop].</p>
     </section>
     <section>
-      <h2>The `cancelIdleCallback` method</h2>
+      <h2>The <code><dfn data-dfn-for="Window">cancelIdleCallback</dfn></code>
+      method</h2>
       <p>The `cancelIdleCallback` method is used to cancel a previously made
       request to schedule an idle callback. When `cancelIdleCallback(handle)`
       is invoked, the user agent MUST run the following steps:</p>
@@ -403,14 +406,19 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
       of runnable idle callbacks</a>. In either case the entry should be
       removed from the list so that the callback does not run.</p>
     </section>
-    <section>
-      <h2>The `timeRemaining` method</h2>
-      <p>When the `timeRemaining()` method is invoked on an <a>IdleDeadline</a>
+    <section data-dfn-for="IdleDeadline">
+      <h2>The <code><dfn>IdleDeadline</dfn></code> interface</h2>
+      <p>Each <a>IdleDeadline</a> has an associated <code><dfn>time</dfn></code>
+      which holds a [DOMHighResTimeStamp] representing the absolute time in
+      milliseconds of the deadline. This MUST be populated when the
+      <a>IdleDeadline</a> is created.</p>
+      <p>When the <code><dfn>timeRemaining</dfn>()</code> method is invoked on
+      an <a>IdleDeadline</a>
       object it MUST return the duration, as a [DOMHighResTimeStamp], between
-      the current time and the <a>time</a> associated with the <a>IdleDeadline</a>
-      object. The value SHOULD be accurate to 5 microseconds - see "Privacy and
-      Security" section of [[!HR-TIME]]. This value is calculated by performing
-      the following steps:</p>
+      the current time and the <a>time</a> associated with the
+      <a>IdleDeadline</a> object. The value SHOULD be accurate to 5 microseconds
+      - see "Privacy and Security" section of [[!HR-TIME]]. This value is
+      calculated by performing the following steps:</p>
       <ol>
         <li>Let <var>now</var> be a [DOMHighResTimeStamp] representing
         [current high resolution time] in milliseconds.</li>
@@ -421,9 +429,8 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         <li>If <var>timeRemaining</var> is negative, set it to 0.</li>
         <li>Return <var>timeRemaining</var>.</li>
       </ol>
-      <p>The `didTimeout` attribute on an `IdleDeadline` object MUST return
-      `true` if the callback was invoked by the <a>invoke idle callback timeout
-      algorithm</a>, and `false` otherwise.</p>
+      <p>The <code><dfn>didTimeout</dfn></code> attribute on an `IdleDeadline`
+      object MUST return `true` if the callback was invoked by the <a>invoke idle callback timeout algorithm</a>, and `false` otherwise.</p>
     </section>
   </section>
   <section>
@@ -592,7 +599,6 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
 [setTimeout]: http://www.w3.org/TR/html5/webappapis.html#dom-windowtimers-settimeout
 [setInterval]: http://www.w3.org/TR/html5/webappapis.html#dom-windowtimers-setinterval
 [conforming implementation]: http://www.w3.org/TR/WebIDL/#dfn-conforming-implementation
-[Window]: http://www.w3.org/TR/html5/browsers.html#the-window-object
 [queue a task]: http://www.w3.org/TR/html5/webappapis.html#queue-a-task
 [task]: http://www.w3.org/TR/2011/WD-html5-20110525/webappapis.html#concept-task
 [task source]: http://www.w3.org/TR/2011/WD-html5-20110525/webappapis.html#task-source
