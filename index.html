@@ -329,12 +329,12 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
       [DOMHighResTimeStamp] which MUST initially be zero.
     </ul>
     <section data-link-for="Window">
-      <h2 data-dnf-for="Window">The <code><dfn>requestIdleCallback</dfn></code>
+      <h2>The <code><dfn data-dfn-for="Window">requestIdleCallback</dfn></code>
       method</h2>
-      <p>When <code><a>requestIdleCallback</a>(callback,
-      options)</code> is invoked with a given <code><dfn>IdleRequestCallback
-      </dfn></code> and optional <code><dfn>IdleRequestOptions</dfn></code>,
-      the user agent MUST run the following steps:</p>
+      <p>When <code><a>requestIdleCallback</a>(callback, options)</code> is
+      invoked with a given <code><dfn>IdleRequestCallback</dfn></code>
+      and optional <code><dfn>IdleRequestOptions</dfn></code>, the user agent
+      MUST run the following steps:</p>
       <ol>
         <li>Let <var>window</var> be this `Window` object.</li>
         <li>Increment the <var>window</var>'s <a>idle callback identifier</a>
@@ -348,7 +348,7 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         of idle request callbacks</a>, associated with <var>handle</var>.</li>
         <li>If <var>start_idle_period</var> is true:
           <ol>
-            <li>[Queue a task] on the queue associated with the idle-task [task source], which performs the <a>start an idle period algorithm</a>,
+            <li>[queue a task] on the queue associated with the idle-task [task source], which performs the <a>start an idle period algorithm</a>,
             passing <var>window</var> as a parameter.</li>
           </ol>
         </li>
@@ -395,12 +395,12 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
       back to the [event loop].</p>
     </section>
     <section>
-      <h2 data-dnf-for="Window">The <code><dfn>cancelIdleCallback</dfn></code>
+      <h2>The <code><dfn data-dfn-for="Window">cancelIdleCallback</dfn></code>
       method</h2>
-      <p>The <code><a>cancelIdleCallback</a></code>
-      method is used to cancel a previously made request to schedule an idle
-      callback. When <code><a>cancelIdleCallback</a>
-      (handle)</code> is invoked, the user agent MUST run the following steps:
+      <p>The <code><a>cancelIdleCallback</a></code> method is used to cancel a
+      previously made request to schedule an idle callback. When
+      <code><a>cancelIdleCallback</a>(handle)</code> is invoked, the user agent
+      MUST run the following steps:
       </p>
       <ol>
         <li>Let <var>window</var> be this `Window` object.</li>
@@ -622,7 +622,7 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
 [microtask queue]: https://w3c.github.io/html/webappapis.html#microtask-queue
 [event loop]: https://w3c.github.io/html/webappapis.html#event-loop
 [event loop processing model]: https://w3c.github.io/html/webappapis.html#event-loops-processing-model
-[Spin the event loop]: https://w3c.github.io/html/webappapis.html#spinning-the-event-loop
+[Spin the event loop] https://w3c.github.io/html/webappapis.html#spinning-the-event-loop
 [browsing context]: https://w3c.github.io/html/browsers.html#sec-browsing-contexts
 [DOMHighResTimestamp]: https://w3c.github.io/hr-time/#dom-domhighrestimestamp
 [current high resolution time]: https://w3c.github.io/hr-time/#dfn-current-high-resolution-time
