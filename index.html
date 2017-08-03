@@ -328,10 +328,10 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
       <li>A <dfn>last idle period deadline</dfn>, which is a
       [DOMHighResTimeStamp] which MUST initially be zero.
     </ul>
-    <section>
-      <h2>The <code><dfn data-dfn-for="Window">requestIdleCallback</dfn></code>
+    <section data-link-for="Window">
+      <h2>The <code><dfn>requestIdleCallback</dfn></code>
       method</h2>
-      <p>When <code><a data-link-for="Window">requestIdleCallback</a>(callback,
+      <p>When <code><a>requestIdleCallback</a>(callback,
       options)</code> is invoked with a given <code><dfn>IdleRequestCallback
       </dfn></code> and optional <code><dfn>IdleRequestOptions</dfn></code>,
       the user agent MUST run the following steps:</p>
@@ -341,13 +341,17 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         by one.</li>
         <li>Let <var>handle</var> be the current value of <var>window</var>'s
         <a>idle callback identifier</a>.</li>
-        <li>If the <var>window</var>'s <a>list of idle request callbacks</a> and
-        it's <a>list of runnable idle callbacks</a> are empty, [queue a task] on
-        the queue associated with the idle-task [task source], which performs
-        the <a>start an idle period algorithm</a>, passing <var>window</var> as
-        a parameter.</li>
+        <li>Let <var>start_idle_period</var> be true if the <var>window</var>'s
+        <a>list of idle request callbacks</a> and it's <a>list of runnable idle
+        callbacks</a> are empty, otherwise false.</li>
         <li>Push <var>callback</var> to the end of <var>window</var>'s <a>list
         of idle request callbacks</a>, associated with <var>handle</var>.</li>
+        <li>If <var>start_idle_period</var> is true:
+          <ol>
+            <li>[queue a task] on the queue associated with the idle-task [task source], which performs the <a>start an idle period algorithm</a>,
+            passing <var>window</var> as a parameter.</li>
+          </ol>
+        </li>
         <li>Return <var>handle</var> and then continue running this algorithm
         asynchronously.
           <p class="note">The following steps run in parallel and queue a timer
@@ -381,21 +385,21 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
           </ol>
         </li>
       </ol>
-      <p class="note"><code><a data-link-for="Window">requestIdleCallback</a>
+      <p class="note"><code><a>requestIdleCallback</a>
       </code> only schedules a single callback, which will be executed during a
       single <a>idle period</a>. If the callback cannot complete its work before
       the given <var>deadline</var> then it should call
-      <code><a data-link-for="Window">requestIdleCallback</a></code> again
+      <code><a>requestIdleCallback</a></code> again
       (which may be done from within the callback) to schedule a future callback
       for the continuation of its task, and exit immediately to return control
       back to the [event loop].</p>
     </section>
     <section>
-      <h2>The <code><dfn data-dfn-for="Window">cancelIdleCallback</dfn></code>
+      <h2>The <code><dfn>cancelIdleCallback</dfn></code>
       method</h2>
-      <p>The <code><a data-link-for="Window">cancelIdleCallback</a></code>
+      <p>The <code><a>cancelIdleCallback</a></code>
       method is used to cancel a previously made request to schedule an idle
-      callback. When <code><a data-link-for="Window">cancelIdleCallback</a>
+      callback. When <code><a>cancelIdleCallback</a>
       (handle)</code> is invoked, the user agent MUST run the following steps:
       </p>
       <ol>
@@ -409,7 +413,7 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         callbacks</a>.
         </li>
       </ol>
-      <p class='note'><code><a data-link-for="Window">cancelIdleCallback</a>
+      <p class='note'><code><a>cancelIdleCallback</a>
       </code> might be invoked for an entry in <var>window</var>'s <a>list of
       idle request callbacks</a> or the <a>list of runnable idle callbacks</a>.
       In either case the entry should be removed from the list so that the
@@ -464,7 +468,7 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
           the rendering and [browsing context] to reflect the current state of
           any outstanding updates for all [fully active] `Document` objects
           associated <var>event_loop</var> (i.e., step 7 of
-          [event loop processing model]) for any [browsing contexts] the
+          [event loop processing model]) for any [browsing context] the
           user agent intends to render. I.e., during animations all rendering
           updates for the current frame will be completed after this step.</p>
         </li>
@@ -478,22 +482,22 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         </li>
         <li>Let <var>now</var> be the current time.</li>
         <li>Let <var>deadline</var> be a time in the future until which the
-        browser expects to remain idle.
-          <p class='note'>The expectation is that the user agent will choose
-          <var>deadline</var> to ensure that no time-critical tasks will be
-          delayed even if a callback runs for the whole time period from
-          <var>now</var> to <var>deadline</var>. As such, it should be set to the
-          minimum of: the closest timeout in the [list of active timers] as set
-          via `[setTimeout]` and `[setInterval]`; the scheduled runtime for
-          pending animation callbacks posted via `[requestAnimationFrame]`;
-          pending internal timeouts such as deadlines to start rendering the
-          next frame, process audio or any other internal task the user agent
-          deems important; and a maximum cap of 50ms in the future to ensure
-          responsiveness to unpredictable user input within the threshold of
-          human perception.</p>
-        </li>
+        browser expects to remain idle. The user agent SHOULD choose
+        <var>deadline</var> to ensure that no time-critical tasks will be
+        delayed even if a callback runs for the whole time period from
+        <var>now</var> to <var>deadline</var>. As such, it should be set to the
+        minimum of: the closest timeout in the [list of active timers] as set
+        via `[setTimeout]` and `[setInterval]`; the scheduled runtime for
+        pending animation callbacks posted via `[requestAnimationFrame]`;
+        pending internal timeouts such as deadlines to start rendering the
+        next frame, process audio or any other internal task the user agent
+        deems important.</li>
         <li>If <var>deadline</var> - <var>now</var> is greater than 50ms, then
-        cap <var>deadline</var> by setting it to be <var>now</var> + 50ms.</li>
+        cap <var>deadline</var> by setting it to be <var>now</var> + 50ms.
+          <p class='note'>The cap of 50ms in the future is to ensure
+          responsiveness to new user input within the threshold of human
+          perception.</p>
+        </li>
         <li>Let <var>pending_list</var> be <var>window</var>'s <a>list of idle
         request callbacks</a>.
         </li>
@@ -540,17 +544,17 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
             argument. If an uncaught runtime script error occurs, then [report
             the error].</li>
             <li>If <var>window</var>'s <a>list of runnable idle callbacks</a>
-            is not empty, the user agent SHOULD [queue a task] which performs
-            the steps in the <a>invoke idle callbacks algorithm</a> with
-            <var>deadline</var> and <var>window</var> as a parameters and return
-            from this algorithm</li>
+            is not empty, [queue a task] which performs the steps in the
+            <a>invoke idle callbacks algorithm</a> with <var>deadline</var>
+            and <var>window</var> as a parameters and return from this
+            algorithm</li>
           </ol>
         </li>
         <li>Otherwise, if either the <var>window</var>'s <a>list of idle request
         callbacks</a> or it's <a>list of runnable idle callbacks</a> are
-        not empty, the user agent SHOULD [queue a task] which performs the steps
-        in the <a>start an idle period algorithm</a> algorithm with
-        <var>window</var> and as a parameter.</li>
+        not empty, [queue a task] which performs the steps in the <a>start an
+        idle period algorithm</a> algorithm with <var>window</var> and as a
+        parameter.</li>
       </ol>
       <p class="note">The user agent is free to end an idle period early, even
       if <var>deadline</var> has not yet occurred, by deciding to skip from step
@@ -608,22 +612,22 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
 </body>
 </html>
 
-[setTimeout]: http://www.w3.org/TR/html5/webappapis.html#dom-windowtimers-settimeout
-[setInterval]: http://www.w3.org/TR/html5/webappapis.html#dom-windowtimers-setinterval
+[setTimeout]: https://w3c.github.io/html/webappapis.html#dom-windowtimers-settimeout
+[setInterval]: https://w3c.github.io/html/webappapis.html#dom-windowtimers-setinterval
 [conforming implementation]: http://www.w3.org/TR/WebIDL/#dfn-conforming-implementation
-[queue a task]: http://www.w3.org/TR/html5/webappapis.html#queue-a-task
-[task]: http://www.w3.org/TR/2011/WD-html5-20110525/webappapis.html#concept-task
-[task source]: http://www.w3.org/TR/2011/WD-html5-20110525/webappapis.html#task-source
+[queue a task]: https://w3c.github.io/html/webappapis.html#queuing
+[task]: https://w3c.github.io/html/webappapis.html#tasks
+[task source]: https://w3c.github.io/html/webappapis.html#task-source
 [task queues]: https://w3c.github.io/html/webappapis.html#task-queues
 [microtask queue]: https://w3c.github.io/html/webappapis.html#microtask-queue
-[event loop]: http://www.w3.org/TR/html5/webappapis.html#event-loop
+[event loop]: https://w3c.github.io/html/webappapis.html#event-loop
 [event loop processing model]: https://w3c.github.io/html/webappapis.html#event-loops-processing-model
-[browsing contexts]: https://w3c.github.io/html/browsers.html#sec-browsing-contexts
-[DOMHighResTimestamp]: http://www.w3.org/TR/hr-time-2/#dom-domhighrestimestamp
-[current high resolution time] https://w3c.github.io/hr-time/#dfn-current-high-resolution-time
-[pv-hidden]: http://www.w3.org/TR/page-visibility/#dom-document-hidden
-[fully active]: http://www.w3.org/TR/html5/browsers.html#fully-active
-[list of active timers]: http://www.w3.org/TR/html5/webappapis.html#list-of-active-timers
-[requestAnimationFrame]: http://www.w3.org/TR/animation-timing/#dom-windowanimationtiming-requestanimationframe
-[report the error]: http://www.w3.org/TR/html5/webappapis.html#report-the-error
-[browsing context]: https://w3c.github.io/html/browsers.html#browsing-context
+[Spin the event loop] https://w3c.github.io/html/webappapis.html#spinning-the-event-loop
+[browsing context]: https://w3c.github.io/html/browsers.html#sec-browsing-contexts
+[DOMHighResTimestamp]: https://w3c.github.io/hr-time/#dom-domhighrestimestamp
+[current high resolution time]: https://w3c.github.io/hr-time/#dfn-current-high-resolution-time
+[pv-hidden]: https://w3c.github.io/page-visibility/#dom-document-hidden
+[fully active]: https://w3c.github.io/html/browsers.html#fully-active
+[list of active timers]: https://w3c.github.io/html/webappapis.html#list-of-active-timers
+[requestAnimationFrame]: https://w3c.github.io/html/webappapis.html#animation-frames
+[report the error]: https://w3c.github.io/html/webappapis.html#report-the-error
