@@ -421,7 +421,7 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
     </section>
     <section data-dfn-for="IdleDeadline">
       <h2>The <code><dfn>IdleDeadline</dfn></code> interface</h2>
-      <p>Each <a>IdleDeadline</a> has an associated <code><dfn>time</dfn></code>
+      <p>Each <a>IdleDeadline</a> has an associated <dfn>time</dfn>
       which holds a [DOMHighResTimeStamp] representing the absolute time in
       milliseconds of the deadline. This MUST be populated when the
       <a>IdleDeadline</a> is created.</p>
@@ -442,8 +442,14 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         <li>If <var>timeRemaining</var> is negative, set it to 0.</li>
         <li>Return <var>timeRemaining</var>.</li>
       </ol>
-      <p>The <code><dfn>didTimeout</dfn></code> attribute on an `IdleDeadline`
-      object MUST return `true` if the callback was invoked by the <a>invoke idle callback timeout algorithm</a>, and `false` otherwise.</p>
+      <p>Each <a>IdleDeadline</a> has an associated <dfn>timeout</dfn>, which is
+      initially false. The <code><dfn>didTimeout</dfn></code> getter MUST
+      return <a>timeout</a>.</p>
+      <p class='note'>The <a>invoke idle callback timeout algorithm</a> sets
+      <a>timeout</a> to true to specify that the callback is being executed
+      outside an idle period, due to it having exceeded the value of the
+      <a>IdleRequestOptions</a>'s timeout property which was passed when the
+      callback was registered.</p>
     </section>
   </section>
   <section>
@@ -538,8 +544,8 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
             <a>list of runnable idle callbacks</a>.</li>
             <li>Let <var>deadlineArg</var> be a new <a>IdleDeadline</a>.
             Set the <a>time</a> associated with <var>deadlineArg</var> to
-            <var>deadline</var> and set the `didTimeout` attribute to
-            `false`.</li>
+            <var>deadline</var> and set the <a>timeout</a> associated with
+            <var>deadlineArg</var> to `false`.</li>
             <li>Call <var>callback</var> with <var>deadlineArg</var> as its
             argument. If an uncaught runtime script error occurs, then [report
             the error].</li>
@@ -578,7 +584,8 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
             <li>Let <var>now</var> be the current time.</li>
             <li>Let <var>deadlineArg</var> be a new <a>IdleDeadline</a>.
             Set the <a>time</a> associated with <var>deadlineArg</var> to
-            <var>now</var> and set the `didTimeout` attribute to `true`.</li>
+            <var>now</var> and set the <a>timeout</a> associated with
+            <var>deadlineArg</var> to `true`.</li>
             <li>Call <var>callback</var> with <var>deadlineArg</var> as its
             argument. If an uncaught runtime script error occurs, then [report
             the error].</li>
