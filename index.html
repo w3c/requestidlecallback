@@ -447,9 +447,9 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
       return <a>timeout</a>.</p>
       <p class='note'>The <a>invoke idle callback timeout algorithm</a> sets
       <a>timeout</a> to true to specify that the callback is being executed
-      outside an idle period, due to it having exceeded the timeout property
-      passed as an <a>IdleRequestOptions</a> parameter when the callback was
-      registered.</p>
+      outside an idle period, due to it having exceeded the value of the
+      <a>IdleRequestOptions</a>'s timeout property which was passed when the
+      callback was registered.</p>
     </section>
   </section>
   <section>
