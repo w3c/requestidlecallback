@@ -357,7 +357,7 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
     <section data-link-for="Window">
       <h2>The <code><dfn data-dfn-for="Window">requestIdleCallback</dfn></code>
       method</h2>
-      <p>When <a>requestIdleCallback</a>(callback, options) is
+      <p>When <a>requestIdleCallback</a><code>(callback, options)</code> is
       invoked with a given <code><dfn>IdleRequestCallback</dfn></code>
       and optional <code><dfn>IdleRequestOptions</dfn></code>, the user agent
       MUST run the following steps:</p>
@@ -426,7 +426,7 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
       method</h2>
       <p>The <a>cancelIdleCallback</a> method is used to cancel a
       previously made request to schedule an idle callback. When
-      <a>cancelIdleCallback</a>(handle) is invoked, the user agent
+      <a>cancelIdleCallback</a><code>(handle)</code> is invoked, the user agent
       MUST run the following steps:
       </p>
       <ol>
