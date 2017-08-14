@@ -82,22 +82,22 @@
   </section>
   <section>
     <h2>Dependencies</h2>
-    <p>The terms <dfn data-cite="html51#sec-browsing-contexts">browsing context
-    </dfn>, <dfn data-cite="html51#event-loop">event loop</dfn>,
-    <dfn data-cite="html51#event-loops-processing-model">event loop processing
-    model</dfn>, <dfn data-cite="html51#spinning-the-event-loop">spin the event
-    loop</dfn>, <dfn data-cite="html51#fully-active">fully active</dfn>,
-    <dfn data-cite="html51#tasks">tasks</dfn>,
-    <dfn data-cite="html51#task-source">task source</dfn>,
-    <dfn data-cite="html51#task-queues">task queues</dfn>,
-    <dfn data-cite="html51#queuing">queue a task</dfn>,
-    <dfn data-cite="html51#microtask-queue">microtask queue</dfn>,
-    <dfn data-cite="html51#list-of-active-timers">list of active timers</dfn>,
-    <dfn data-cite="html51#dom-windowtimers-settimeout">setTimeout</dfn>,
-    <dfn data-cite="html51#dom-windowtimers-setinterval">setInterval</dfn>,
-    <dfn data-cite="html51#animation-frames">requestAnimationFrame</dfn> and
-    <dfn data-cite="html51#report-the-error">report the error</dfn> are defined
-    in [[!html51]].</p>
+    <p>The terms <dfn data-cite="html#browsing-context">browsing context
+    </dfn>, <dfn data-cite="html#event-loop">event loop</dfn>,
+    <dfn data-cite="html#event-loop-processing-model">event loop processing
+    model</dfn>, <dfn data-cite="html#spin-the-event-loop">spin the event
+    loop</dfn>, <dfn data-cite="html#fully-active">fully active</dfn>,
+    <dfn data-cite="html#concept-task">tasks</dfn>,
+    <dfn data-cite="html#task-source">task source</dfn>,
+    <dfn data-cite="html#task-queue">task queues</dfn>,
+    <dfn data-cite="html#queue-a-task">queue a task</dfn>,
+    <dfn data-cite="html#microtask-queue">microtask queue</dfn>,
+    <dfn data-cite="html#list-of-active-timers">list of active timers</dfn>,
+    <code><dfn data-cite="html#dom-settimeout">setTimeout</dfn></code>,
+    <code><dfn data-cite="html#dom-setinterval">setInterval</dfn></code>,
+    <code><dfn data-cite="html#dom-window-requestanimationframe">requestAnimationFrame</dfn></code> and
+    <dfn data-cite="html#report-the-error">report the error</dfn> are defined
+    in [[!html]].</p>
     <p>The terms <dfn data-cite="hr-time-2#dfn-current-high-resolution-time">
     current high resolution time</dfn> and
     <dfn data-cite="hr-time-2#dom-domhighrestimestamp">DOMHighResTimestamp</dfn>
@@ -116,9 +116,9 @@
     templating and pre-rendering of content likely to become visible in the
     near future. These tasks must share the event loop with other time-critical
     operations, such as reacting to input and performing script-based
-    animations using <code><a>requestAnimationFrame</a></code>. These
+    animations using <a>requestAnimationFrame</a>. These
     background tasks are typically performed by scheduling a callback using
-    <code><a>setTimeout</a></code> and running the background task during that
+    <a>setTimeout</a> and running the background task during that
     callback.</p>
     <p>A disadvantage of this approach is that the author of the script has no
     way to inform the user-agent as to whether a given `setTimeout` callback is
@@ -303,8 +303,7 @@ function doWork(deadline) {
   </section>
   <section id="conformance">
     <p>The IDL fragments in this specification MUST be interpreted as required
-    for conforming IDL fragments, as described in the Web IDL specification.
-    [[!WEBIDL]]</p>
+    for conforming IDL fragments.</p>
     <p>This specification defines a single conformance class:</p>
     <dl>
       <dt>conforming user agent</dt>
@@ -313,8 +312,7 @@ function doWork(deadline) {
         satisfies all of the MUST-, REQUIRED- and SHALL-level criteria in this
         specification. A conforming user agent must also be a <a>conforming
         implementation</a> of the IDL fragment in section <a href=
-        "#window_extensions"></a>, as described in the Web IDL specification
-        [[!WEBIDL]].
+        "#window_extensions"></a>.
       </dd>
     </dl>
   </section>
@@ -341,7 +339,7 @@ interface IdleDeadline {
 
 callback IdleRequestCallback = void (IdleDeadline deadline);
 </pre>
-    <p>Each <code><a>Window</a></code> has:</p>
+    <p>Each <a>Window</a> has:</p>
     <ul>
       <li>A <dfn>list of idle request callbacks</dfn>. The list MUST be
       initially empty and each entry in this list is identified by a number,
@@ -359,7 +357,7 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
     <section data-link-for="Window">
       <h2>The <code><dfn data-dfn-for="Window">requestIdleCallback</dfn></code>
       method</h2>
-      <p>When <code><a>requestIdleCallback</a>(callback, options)</code> is
+      <p>When <a>requestIdleCallback</a>(callback, options) is
       invoked with a given <code><dfn>IdleRequestCallback</dfn></code>
       and optional <code><dfn>IdleRequestOptions</dfn></code>, the user agent
       MUST run the following steps:</p>
@@ -414,11 +412,11 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
           </ol>
         </li>
       </ol>
-      <p class="note"><code><a>requestIdleCallback</a>
-      </code> only schedules a single callback, which will be executed during a
+      <p class="note"><a>requestIdleCallback</a>
+      only schedules a single callback, which will be executed during a
       single <a>idle period</a>. If the callback cannot complete its work before
       the given <var>deadline</var> then it should call
-      <code><a>requestIdleCallback</a></code> again
+      <a>requestIdleCallback</a> again
       (which may be done from within the callback) to schedule a future callback
       for the continuation of its task, and exit immediately to return control
       back to the <a>event loop</a>.</p>
@@ -426,9 +424,9 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
     <section data-link-for="Window">
       <h2>The <code><dfn data-dfn-for="Window">cancelIdleCallback</dfn></code>
       method</h2>
-      <p>The <code><a>cancelIdleCallback</a></code> method is used to cancel a
+      <p>The <a>cancelIdleCallback</a> method is used to cancel a
       previously made request to schedule an idle callback. When
-      <code><a>cancelIdleCallback</a>(handle)</code> is invoked, the user agent
+      <a>cancelIdleCallback</a>(handle) is invoked, the user agent
       MUST run the following steps:
       </p>
       <ol>
@@ -442,8 +440,8 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         callbacks</a>.
         </li>
       </ol>
-      <p class='note'><code><a>cancelIdleCallback</a>
-      </code> might be invoked for an entry in <var>window</var>'s <a>list of
+      <p class='note'><a>cancelIdleCallback</a>
+      might be invoked for an entry in <var>window</var>'s <a>list of
       idle request callbacks</a> or the <a>list of runnable idle callbacks</a>.
       In either case the entry should be removed from the list so that the
       callback does not run.</p>
@@ -511,7 +509,7 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         <li>Optionally, wait a further user-agent defined length of time.
           <p class='note'>This is intended to allow user agents to delay the
           start of idle periods as needed to optimise the power usage of the
-          device. For example, if the `Document`'s <code><a>hidden</a></code>
+          device. For example, if the `Document`'s <a>hidden</a>
           attribute ([[!page-visibility]]) is `true` then the user agent can
           throttle idle period generation, for example limiting the Document to
           one idle period every 10 seconds to optimize for power usage.</p>
@@ -523,9 +521,9 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         delayed even if a callback runs for the whole time period from
         <var>now</var> to <var>deadline</var>. As such, it should be set to the
         minimum of: the closest timeout in the <a>list of active timers</a> as
-        set via <code><a>setTimeout</a></code> and <code><a>setInterval</a>
-        </code>; the scheduled runtime for pending animation callbacks posted via
-        <code><a>requestAnimationFrame</a></code>; pending internal timeouts such
+        set via <a>setTimeout</a> and <a>setInterval</a>; the scheduled
+        runtime for pending animation callbacks posted via
+        <a>requestAnimationFrame</a>; pending internal timeouts such
         as deadlines to start rendering the next frame, process audio or any
         other internal task the user agent deems important.</li>
         <li>If <var>deadline</var> - <var>now</var> is greater than 50ms, then
