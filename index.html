@@ -324,15 +324,15 @@ function doWork(deadline) {
     [[!HTML5]]</p>
     <pre class='idl'>
 partial interface Window {
-  unsigned long requestIdleCallback(IdleRequestCallback callback, optional IdleRequestOptions options);
-  void cancelIdleCallback(unsigned long handle);
+  [Exposed=Window]unsigned long requestIdleCallback(IdleRequestCallback callback, optional IdleRequestOptions options);
+  [Exposed=Window]void cancelIdleCallback(unsigned long handle);
 };
 
-dictionary IdleRequestOptions {
+[Exposed=Window]dictionary IdleRequestOptions {
   unsigned long timeout;
 };
 
-interface IdleDeadline {
+[Exposed=Window]interface IdleDeadline {
   DOMHighResTimeStamp timeRemaining();
   readonly attribute boolean didTimeout;
 };
