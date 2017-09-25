@@ -324,11 +324,11 @@ function doWork(deadline) {
     [[!HTML5]]</p>
     <pre class='idl'>
 partial interface Window {
-  [Exposed=Window] unsigned long requestIdleCallback(IdleRequestCallback callback, optional IdleRequestOptions options);
-  [Exposed=Window] void cancelIdleCallback(unsigned long handle);
+  unsigned long requestIdleCallback(IdleRequestCallback callback, optional IdleRequestOptions options);
+  void cancelIdleCallback(unsigned long handle);
 };
 
-[Exposed=Window] dictionary IdleRequestOptions {
+dictionary IdleRequestOptions {
   unsigned long timeout;
 };
 
