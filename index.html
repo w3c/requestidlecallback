@@ -332,7 +332,7 @@ dictionary IdleRequestOptions {
   unsigned long timeout;
 };
 
-interface IdleDeadline {
+[Exposed=Window] interface IdleDeadline {
   DOMHighResTimeStamp timeRemaining();
   readonly attribute boolean didTimeout;
 };
