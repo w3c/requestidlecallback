@@ -152,8 +152,8 @@ var pointsInside = 0;
 
 function piStep() {
   var r = 10;
-  var x = Math.random() * r * 2 - r;
-  var y = Math.random() * r * 2 - r;
+  var x = Math.random() `*` r `*` 2 - r;
+  var y = Math.random() `*` r `*` 2 - r;
   return (Math.pow(x, 2) + Math.pow(y, 2) &lt; Math.pow(r, 2))
 }
 function refinePi(deadline) {
@@ -162,7 +162,7 @@ function refinePi(deadline) {
       pointsInside++;
     pointsTotal++;
   }
-  currentEstimate = (4 * pointsInside / pointsTotal);
+  currentEstimate = (4 `*` pointsInside / pointsTotal);
   textElement = document.getElementById("piEstimate");
   textElement.innerHTML="Pi Estimate: " + currentEstimate;
   requestId = window.requestIdleCallback(refinePi);
