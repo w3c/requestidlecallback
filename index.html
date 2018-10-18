@@ -466,6 +466,8 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         <a>IdleDeadline</a> object.</li>
         <li>Let <var>timeRemaining</var> be <var>deadline</var> -
         <var>now</var>.</li>
+        <li>If the user agent now has a time-critical task pending,
+        set <var>timeRemaining</var> to 0.</li>
         <li>If <var>timeRemaining</var> is negative, set it to 0.</li>
         <li>Return <var>timeRemaining</var>.</li>
       </ol>
