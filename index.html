@@ -485,30 +485,16 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
     <h2>Processing</h2>
     <section>
       <h2>Start an idle period algorithm</h2>
-      <p>The <dfn>start an idle period algorithm</dfn>:</p>
+      <p>The <dfn>start an idle period algorithm</dfn>, which is called
+      by the <a>event loop processing model</a> when it determines that
+      the <a>event loop</a> is otherwise idle:</p>
       <ol>
         <li>Let <var>last_deadline</var> be the <a>last idle period deadline</a>
         associated with <var>window</var>
-        <li>Let <var>event_loop</var> be the <a>event loop</a> associated with
-        <var>window</var>
-        <li>If <var>last_deadline</var> is greater than the current time:
-          <ol>
-            <li><a>Spin the event loop</a> until the current time is greater
-            than or equal to <var>last_deadline</var>.</li>
-          </ol>
-        </li>
-        <li><a>Spin the event loop</a> until all the <a>task queues</a> and the
-        <a>microtask queue</a> associated with <var>event_loop</var> are empty.
-          <p class="note"> The expectation is that the user agent will update
-          the rendering and <a>browsing context</a> to reflect the current state
-          of any outstanding updates for all <a>fully active</a> `Document`
-          objects associated <var>event_loop</var> (i.e., step 7 of
-          <a>event loop processing model</a>) for any <a>browsing context</a>
-          the user agent intends to render. I.e., during animations all
-          rendering updates for the current frame will be completed after this
-          step.</p>
-        </li>
-        <li>Optionally, wait a further user-agent defined length of time.
+        <li>If <var>last_deadline</var> is greater than the current time,
+        return from this algorithm.
+        <li>Optionally, if the user agent determines the idle period should 
+        be delayed, return from this algorithm.
           <p class='note'>This is intended to allow user agents to delay the
           start of idle periods as needed to optimise the power usage of the
           device. For example, if the `Document`'s <a>hidden</a>
