@@ -382,7 +382,7 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         <li>Return <var>handle</var> and then continue running this algorithm
         asynchronously.
           <p class="note">The following steps run in parallel and queue a timer
-          similar to `setTimeout()` if the optional <code>timeout</code> property is
+          similar to <code>setTimeout()</code> if the optional <code>timeout</code> property is
           provided. From here, the idle and timeout callbacks are raced and
           cancel each other—e.g. if the idle callback is scheduled first, then
           it cancels the timeout callback, and vice versa.</p>
