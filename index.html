@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Cooperative Scheduling of Background Tasks</title>
-  <script src='//www.w3.org/Tools/respec/respec-w3c-common' async class=
+  <script src='https://www.w3.org/Tools/respec/respec-w3c-common' async class=
   'remove'>
   </script>
   <script class='remove'>
@@ -93,6 +93,9 @@
     <dfn data-cite="html#queue-a-task">queue a task</dfn>,
     <dfn data-cite="html#microtask-queue">microtask queue</dfn>,
     <dfn data-cite="html#list-of-active-timers">list of active timers</dfn>,
+    <dfn data-cite="html#windoworworkerglobalscope">WindowOrWorkerGlobalScope</dfn>,
+    <dfn data-cite="html#window-event-loop">window event loop</dfn>,
+    <dfn data-cite="html#in-parallel">in parallel</dfn>,
     <code><dfn data-cite="html#dom-settimeout">setTimeout</dfn></code>,
     <code><dfn data-cite="html#dom-setinterval">setInterval</dfn></code>,
     <code><dfn data-cite="html#dom-window-requestanimationframe">requestAnimationFrame</dfn></code> and
@@ -294,7 +297,7 @@ function doWork(deadline) {
     before the callback is executed within an idle period, a task is queued to
     execute it.</p>
     <p class="note" id='why50'>The maximum deadline of 50ms is derived from
-    studies [[!RESPONSETIME]] which show that that a response to user input
+    studies [[RESPONSETIME]] which show that that a response to user input
     within 100ms is generally perceived as instantaneous to humans. Capping
     idle deadlines to 50ms means that even if the user input occurs immediately
     after the idle task has begun, the user agent still has a remaining 50ms in
@@ -498,22 +501,30 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
           <p class='note'>This is intended to allow user agents to delay the
           start of idle periods as needed to optimise the power usage of the
           device. For example, if the <code>Document</code>'s <a>hidden</a>
-          attribute ([[!page-visibility]]) is <code>true</code> then the user agent can
-          throttle idle period generation, for example limiting the Document to
-          one idle period every 10 seconds to optimize for power usage.</p>
+          attribute ([[!page-visibility]]) is <code>true</code> then the user
+          agent can throttle idle period generation, for example limiting the
+          Document to one idle period every 10 seconds to optimize for power
+          usage.</p>
         </li>
         <li>Let <var>now</var> be the current time.</li>
-        <li>Let <var>deadline</var> be a time in the future until which the
-        browser expects to remain idle. The user agent SHOULD choose
-        <var>deadline</var> to ensure that no time-critical tasks will be
-        delayed even if a callback runs for the whole time period from
-        <var>now</var> to <var>deadline</var>. As such, it should be set to the
-        minimum of: the closest timeout in the <a>list of active timers</a> as
-        set via <a>setTimeout</a> and <a>setInterval</a>; the scheduled
-        runtime for pending animation callbacks posted via
-        <a>requestAnimationFrame</a>; pending internal timeouts such
-        as deadlines to start rendering the next frame, process audio or any
-        other internal task the user agent deems important.</li>
+        <li>Let <var>deadline</var> be a time in the future until which the 
+        UA expects the <var>window</var>'s <a>window event loop</a> is likely
+        to remain idle. The user agent SHOULD choose <var>deadline</var> to 
+        ensure that no time-critical tasks will be delayed even if a callback 
+        runs for the whole time period from <var>now</var> to
+        <var>deadline</var>. As such, it should be set to the minimum of: 
+        <ol>
+          <li>the closest timeout in the <a>list of active timers</a>
+          in any <a>WindowOrWorkerGlobalScope</a> that queues tasks on
+          <var>window</var>'s <a>window event loop</a>.</li>
+          <li>The next scheduled rendering or painting task.</li>
+          <li>The next scheduled audio processing task.</li>
+          <li>the scheduled runtime for pending animation callbacks posted via
+          <a>requestAnimationFrame</a>.</li>
+          <li>The expected time at which an algorithm running <a>in parallel</a>
+          may schedule a task.</li>
+          <li>Any other internal task the user agent deems important.</li>
+        </ol>
         <li>If <var>deadline</var> - <var>now</var> is greater than 50ms, then
         cap <var>deadline</var> by setting it to be <var>now</var> + 50ms.
           <p class='note'>The cap of 50ms in the future is to ensure
