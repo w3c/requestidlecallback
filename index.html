@@ -514,12 +514,12 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         runs for the whole time period from <var>now</var> to
         <var>deadline</var>. As such, it should be set to the minimum of: 
         <ol>
-          <li>the closest timeout in the <a>list of active timers</a>
+          <li>The closest timeout in the <a>list of active timers</a>
           in any <a>WindowOrWorkerGlobalScope</a> that queues tasks on
           <var>window</var>'s <a>window event loop</a>.</li>
           <li>The next scheduled rendering or painting task.</li>
           <li>The next scheduled audio processing task.</li>
-          <li>the scheduled runtime for pending animation callbacks posted via
+          <li>The scheduled runtime for pending animation callbacks posted via
           <a>requestAnimationFrame</a>.</li>
           <li>The expected time at which an algorithm running <a>in parallel</a>
           may schedule a task.</li>
