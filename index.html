@@ -453,12 +453,11 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
       milliseconds of the deadline. This MUST be populated when the
       <a>IdleDeadline</a> is created.</p>
       <p>When the <code><dfn>timeRemaining</dfn>()</code> method is invoked on
-      an <a>IdleDeadline</a>
-      object it MUST return the duration, as a <a>DOMHighResTimeStamp</a>,
-      between the current time and the <a>time</a> associated with the
-      <a>IdleDeadline</a> object. The value SHOULD be accurate to 5 microseconds
-      - see "Privacy and Security" section of [[!HR-TIME]]. This value is
-      calculated by performing the following steps:</p>
+      an <a>IdleDeadline</a> object it MUST return the remaining duration before
+      the deadline expires as a <a>DOMHighResTimeStamp</a>, which SHOULD be
+      enough to allow measurement while preventing timing attack - see 
+      "Privacy and Security" section of [[HR-TIME]]. This value is calculated 
+      by performing the following steps:</p>
       <ol>
         <li>Let <var>now</var> be a <a>DOMHighResTimeStamp</a> representing
         <a>current high resolution time</a> in milliseconds.</li>
