@@ -553,7 +553,8 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         <li>If the user-agent believes it should end the idle period early due
         to newly scheduled high-priority work, skip to step 4.
         <li>Let <var>now</var> be the current time.</li>
-        <li>If <var>now</var> is less than <var>deadline</var>:
+        <li>If <var>now</var> is less than <var>deadline</var> and the 
+        <var>window</var>'s <a>list of runnable idle callbacks</a> is not empty:
           <ol>
             <li>Pop the top <var>callback</var> from <var>window</var>'s
             <a>list of runnable idle callbacks</a>.</li>
