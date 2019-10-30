@@ -367,18 +367,8 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         by one.</li>
         <li>Let <var>handle</var> be the current value of <var>window</var>'s
         <a>idle callback identifier</a>.</li>
-        <li>Let <var>start_idle_period</var> be true if the <var>window</var>'s
-        <a>list of idle request callbacks</a> and it's <a>list of runnable idle
-        callbacks</a> are empty, otherwise false.</li>
         <li>Push <var>callback</var> to the end of <var>window</var>'s <a>list
         of idle request callbacks</a>, associated with <var>handle</var>.</li>
-        <li>If <var>start_idle_period</var> is true:
-          <ol>
-            <li><a>queue a task</a> on the queue associated with the idle-task
-            <a>task source</a>, which performs the <a>start an idle period
-            algorithm</a>, passing <var>window</var> as a parameter.</li>
-          </ol>
-        </li>
         <li>Return <var>handle</var> and then continue running this algorithm
         asynchronously.
           <p class="note">The following steps run in parallel and queue a timer
