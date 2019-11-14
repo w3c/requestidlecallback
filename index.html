@@ -87,10 +87,13 @@
     <dfn data-cite="html#event-loop-processing-model">event loop processing
     model</dfn>, <dfn data-cite="html#spin-the-event-loop">spin the event
     loop</dfn>, <dfn data-cite="html#fully-active">fully active</dfn>,
+    <dfn data-cite="html#concept-task">task</dfn>,
     <dfn data-cite="html#concept-task">tasks</dfn>,
     <dfn data-cite="html#task-source">task source</dfn>,
     <dfn data-cite="html#task-queue">task queues</dfn>,
+    <dfn data-cite="html#queue-a-task">queued</dfn>,
     <dfn data-cite="html#queue-a-task">queue a task</dfn>,
+    <dfn data-cite="html#user-interaction-task-source">user interaction task source</dfn>,
     <dfn data-cite="html#microtask-queue">microtask queue</dfn>,
     <dfn data-cite="html#list-of-active-timers">list of active timers</dfn>,
     <code><dfn data-cite="html#dom-settimeout">setTimeout</dfn></code>,
@@ -465,8 +468,10 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         <a>IdleDeadline</a> object.</li>
         <li>Let <var>timeRemaining</var> be <var>deadline</var> -
         <var>now</var>.</li>
-        <li>If the user agent now has a time-critical task pending,
-        set <var>timeRemaining</var> to 0.</li>
+        <li>Call the <a>is high-priority work pending algorithm</a>, passing
+	the <a>event loop</a> associated with <var>window</var> as
+	<var>event_loop</var>. If it returns <code>true</code> set 
+	<var>timeRemaining</var> to 0.</li>
         <li>If <var>timeRemaining</var> is negative, set it to 0.</li>
         <li>Return <var>timeRemaining</var>.</li>
       </ol>
@@ -550,8 +555,9 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
       <h2>Invoke idle callbacks algorithm</h2>
       <p>The <dfn>invoke idle callbacks algorithm</dfn>:</p>
       <ol>
-        <li>If the user-agent believes it should end the idle period early due
-        to newly scheduled high-priority work, skip to step 4.
+        <li>Call the <a>is high-priority work pending algorithm</a>, passing
+	the <a>event loop</a> associated with <var>window</var> as
+	<var>event_loop</var>. If it returns <code>true</code>, skip to step 4.
         <li>Let <var>now</var> be the current time.</li>
         <li>If <var>now</var> is less than <var>deadline</var>:
           <ol>
@@ -608,6 +614,18 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         </li>
       </ol>
     </section>
+    <section>
+      <h2>Is high-priority work pending algorithm</h2>
+      <p>The <dfn>is high-priority work pending algorithm</dfn>:</p>
+      <ol>
+        <li>If <var>event_loop</var> has any task queues that contain a 
+	<a>task</a> <a>queued</a> with the <a>user interaction task source</a>,
+	or if the user agent determines that it MAY soon enqueue such a task,
+        then return <code>true</code>.
+	<li>If the user determines that it has internal high-priority work
+	pending, then return <code>true</code>.
+        <li>Return <code>false</code>.
+      <ol>
   </section>
   <section>
     <h2>Privacy and Security</h2>
