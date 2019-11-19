@@ -367,18 +367,8 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         by one.</li>
         <li>Let <var>handle</var> be the current value of <var>window</var>'s
         <a>idle callback identifier</a>.</li>
-        <li>Let <var>start_idle_period</var> be true if the <var>window</var>'s
-        <a>list of idle request callbacks</a> and it's <a>list of runnable idle
-        callbacks</a> are empty, otherwise false.</li>
         <li>Push <var>callback</var> to the end of <var>window</var>'s <a>list
         of idle request callbacks</a>, associated with <var>handle</var>.</li>
-        <li>If <var>start_idle_period</var> is true:
-          <ol>
-            <li><a>queue a task</a> on the queue associated with the idle-task
-            <a>task source</a>, which performs the <a>start an idle period
-            algorithm</a>, passing <var>window</var> as a parameter.</li>
-          </ol>
-        </li>
         <li>Return <var>handle</var> and then continue running this algorithm
         asynchronously.
           <p class="note">The following steps run in parallel and queue a timer
@@ -455,8 +445,8 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
       <p>When the <code><dfn>timeRemaining</dfn>()</code> method is invoked on
       an <a>IdleDeadline</a> object it MUST return the remaining duration before
       the deadline expires as a <a>DOMHighResTimeStamp</a>, which SHOULD be
-      enough to allow measurement while preventing timing attack - see 
-      "Privacy and Security" section of [[HR-TIME]]. This value is calculated 
+      enough to allow measurement while preventing timing attack - see
+      "Privacy and Security" section of [[HR-TIME]]. This value is calculated
       by performing the following steps:</p>
       <ol>
         <li>Let <var>now</var> be a <a>DOMHighResTimeStamp</a> representing
@@ -551,9 +541,9 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
       <p>The <dfn>invoke idle callbacks algorithm</dfn>:</p>
       <ol>
         <li>If the user-agent believes it should end the idle period early due
-        to newly scheduled high-priority work, skip to step 4.
+        to newly scheduled high-priority work, return from the algorithm.
         <li>Let <var>now</var> be the current time.</li>
-        <li>If <var>now</var> is less than <var>deadline</var> and the 
+        <li>If <var>now</var> is less than <var>deadline</var> and the
         <var>window</var>'s <a>list of runnable idle callbacks</a> is not empty:
           <ol>
             <li>Pop the top <var>callback</var> from <var>window</var>'s
@@ -572,16 +562,11 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
             algorithm</li>
           </ol>
         </li>
-        <li>Otherwise, if either the <var>window</var>'s <a>list of idle request
-        callbacks</a> or it's <a>list of runnable idle callbacks</a> are
-        not empty, <a>queue a task</a> which performs the steps in the <a>start
-        an idle period algorithm</a> algorithm with <var>window</var> and as a
-        parameter.</li>
       </ol>
       <p class="note">The user agent is free to end an idle period early, even
-      if <var>deadline</var> has not yet occurred, by deciding to skip from step
-      1 directly to step 4. For example, the user agent may decide to do
-      this if it determines that higher priority work has become runnable.</p>
+      if <var>deadline</var> has not yet occurred, by deciding return from the
+      algorithm in step 1. For example, the user agent may decide to do this
+      if it determines that higher priority work has become runnable.</p>
     </section>
     <section>
       <h2>Invoke idle callback timeout algorithm</h2>
