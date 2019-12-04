@@ -82,13 +82,15 @@
   </section>
   <section>
     <h2>Dependencies</h2>
-    <p>The terms <dfn data-cite="html#browsing-context">browsing context
+    <p>The terms <dfn data-cite="html#browsing-context">browsing contexts
     </dfn>, <dfn data-cite="html#event-loop">event loop</dfn>,
     <dfn data-cite="html#event-loop-processing-model">event loop processing
     model</dfn>, <dfn data-cite="html#spin-the-event-loop">spin the event
     loop</dfn>, <dfn data-cite="html#fully-active">fully active</dfn>,
+    <dfn data-cite="html#rendering-opportunity">rendering opportunity</dfn>,
     <dfn data-cite="html#concept-task">task</dfn>,
     <dfn data-cite="html#concept-task">tasks</dfn>,
+    <dfn data-cite="html##concept-task-runnable">runnable task</dfn>,
     <dfn data-cite="html#task-source">task source</dfn>,
     <dfn data-cite="html#task-queue">task queues</dfn>,
     <dfn data-cite="html#queue-a-task">queued</dfn>,
@@ -470,7 +472,7 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
         <var>now</var>.</li>
         <li>Call the <a>is high-priority work pending algorithm</a>, passing
 	the <a>event loop</a> associated with <var>window</var> as
-	<var>event_loop</var>. If it returns <code>true</code> set 
+	<var>eventLoop</var>. If it returns <code>true</code> set
 	<var>timeRemaining</var> to 0.</li>
         <li>If <var>timeRemaining</var> is negative, set it to 0.</li>
         <li>Return <var>timeRemaining</var>.</li>
@@ -478,6 +480,8 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
       <p>Each <a>IdleDeadline</a> has an associated <dfn>timeout</dfn>, which is
       initially false. The <code><dfn>didTimeout</dfn></code> getter MUST
       return <a>timeout</a>.</p>
+      <p>Each <a>IdleDeadline</a> has an associated <dfn>window</dfn>, which is
+      set when the IdleDeadline is constructed.</p>
       <p class='note'>The <a>invoke idle callback timeout algorithm</a> sets
       <a>timeout</a> to true to specify that the callback is being executed
       outside an idle period, due to it having exceeded the value of the
@@ -557,7 +561,7 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
       <ol>
         <li>Call the <a>is high-priority work pending algorithm</a>, passing
 	the <a>event loop</a> associated with <var>window</var> as
-	<var>event_loop</var>. If it returns <code>true</code>, skip to step 4.
+	<var>eventLoop</var>. If it returns <code>true</code>, skip to step 4.
         <li>Let <var>now</var> be the current time.</li>
         <li>If <var>now</var> is less than <var>deadline</var>:
           <ol>
@@ -565,8 +569,10 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
             <a>list of runnable idle callbacks</a>.</li>
             <li>Let <var>deadlineArg</var> be a new <a>IdleDeadline</a>.
             Set the <a>time</a> associated with <var>deadlineArg</var> to
-            <var>deadline</var> and set the <a>timeout</a> associated with
-            <var>deadlineArg</var> to <code>false</code>.</li>
+            <var>deadline</var>, set the <a>timeout</a> associated with
+            <var>deadlineArg</var> to <code>false</code> and set the
+            <a>window</a> associated with <var>deadlineArg</var> to
+            <var>window</var>.</li>
             <li>Call <var>callback</var> with <var>deadlineArg</var> as its
             argument. If an uncaught runtime script error occurs, then <a>report
             the error</a>.</li>
@@ -605,8 +611,10 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
             <li>Let <var>now</var> be the current time.</li>
             <li>Let <var>deadlineArg</var> be a new <a>IdleDeadline</a>.
             Set the <a>time</a> associated with <var>deadlineArg</var> to
-            <var>now</var> and set the <a>timeout</a> associated with
-            <var>deadlineArg</var> to <code>true</code>.</li>
+            <var>now</var>, set the <a>timeout</a> associated with
+            <var>deadlineArg</var> to <code>true</code> and set the
+            <a>window</a> associated with <var>deadlineArg</var> to
+            <var>window</var>.</li>
             <li>Call <var>callback</var> with <var>deadlineArg</var> as its
             argument. If an uncaught runtime script error occurs, then <a>report
             the error</a>.</li>
@@ -616,14 +624,17 @@ callback IdleRequestCallback = void (IdleDeadline deadline);
     </section>
     <section>
       <h2>Is high-priority work pending algorithm</h2>
-      <p>The <dfn>is high-priority work pending algorithm</dfn>:</p>
+      <p>The <dfn>is high-priority work pending algorithm</dfn> given
+      <var>eventLoop</var>:</p>
       <ol>
-        <li>If <var>event_loop</var> has any task queues that contain a 
-	<a>task</a> <a>queued</a> with the <a>user interaction task source</a>,
-	or if the user agent determines that it MAY soon enqueue such a task,
+        <li>If <var>eventLoop</var> has any <a>task queues</a> with a
+        <a>runnable task</a> with the <a>user interaction task source</a>,
+        or if the user agent determines that it MAY soon enqueue such a task,
         then return <code>true</code>.
-	<li>If the user determines that it has internal high-priority work
-	pending, then return <code>true</code>.
+        <li>If <var>eventLoop</var> has any <a>browsing contexts<a> that have
+        a <a>rendering opportunity</a>, return <code>true</code>.
+        <li>If the user agent determines that it has internal high-priority work
+        pending, then return <code>true</code>.
         <li>Return <code>false</code>.
       <ol>
   </section>
