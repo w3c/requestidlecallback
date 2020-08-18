@@ -324,7 +324,7 @@ function doWork(deadline) {
     <pre class='idl'>
 partial interface Window {
   unsigned long requestIdleCallback(IdleRequestCallback callback, optional IdleRequestOptions options = {});
-  void cancelIdleCallback(unsigned long handle);
+  undefined cancelIdleCallback(unsigned long handle);
 };
 
 dictionary IdleRequestOptions {
@@ -336,8 +336,8 @@ dictionary IdleRequestOptions {
   readonly attribute boolean didTimeout;
 };
 
-callback IdleRequestCallback = void (IdleDeadline deadline);
-</pre>
+callback IdleRequestCallback = undefined (IdleDeadline deadline);
+    </pre>
     <p>Each <a>Window</a> has:</p>
     <ul>
       <li>A <dfn>list of idle request callbacks</dfn>. The list MUST be
