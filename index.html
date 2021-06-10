@@ -66,15 +66,15 @@
     {{WindowOrWorkerGlobalScope/setTimeout()}} and running the background task during that
     callback.</p>
     <p>A disadvantage of this approach is that the author of the script has no
-    way to inform the user-agent as to whether a given <code>setTimeout</code> callback is
+    way to inform the user-agent as to whether a given {{WindowOrWorkerGlobalScope/setTimeout()}} callback is
     time-critical or could be delayed until the browser is otherwise idle. In
     addition, the user agent isn't able to provide the callback with any
     information about how long it can continue to execute without delaying
     time-critical operations and causing jank or other user-perceptible delays.
     As a result, the easiest way forward is for the author is to simply call
-    <code>setTimeout</code> with a very small value, and then execute the minimum possible
+    {{WindowOrWorkerGlobalScope/setTimeout()}} with a very small value, and then execute the minimum possible
     chunk of work in the resulting callback and reschedule additional work with
-    another call to <code>setTimeout</code>. This is less than optimal because there is
+    another call to {{WindowOrWorkerGlobalScope/setTimeout()}}. This is less than optimal because there is
     extra overhead from having to post many small tasks on the user agent's
     event loop and schedule their execution. It also relies on the user-agent
     interleaving other time-critical work between each of these callbacks
@@ -133,8 +133,8 @@ function stop() {
     either: the next frame begins; another pending task becomes eligible to
     run; or user input is received. This specification provides a means to
     schedule execution of callbacks during this otherwise idle time via a
-    <code>requestIdleCallback</code> API.</p>
-    <p>Callbacks posted via the <code>requestIdleCallback</code> API become eligible to
+    {{Window/requestIdleCallback()}} API.</p>
+    <p>Callbacks posted via the {{Window/requestIdleCallback()}} API become eligible to
     run during user agent defined idle periods. When an idle callback is run it
     will be given a deadline which corresponds to the end of the current idle
     period. The decision as to what constitutes an idle period is user agent
@@ -195,7 +195,7 @@ function stop() {
     of background work.</p>
     <p>Only idle tasks which posted before the start of the current idle period
     are eligible to be run during the current idle period. As a result, if an
-    idle callback posts another callback using <code>requestIdleCallback</code>, this
+    idle callback posts another callback using {{Window/requestIdleCallback()}}, this
     subsequent callback won't be run during the current idle period. This
     enables idle callbacks to re-post themselves to be run in a future idle
     period if they cannot complete their work by a given deadline - i.e.,
@@ -231,11 +231,11 @@ function doWork(deadline) {
     will have any idle CPU time available during heavy page load. As such, it
     is entirely acceptable that the user agent does not schedule any idle
     period, which would result in the idle callbacks posted via the
-    <code>requestIdleCallback</code> API being postponed for a potentially unbounded
+    {{Window/requestIdleCallback()}} API being postponed for a potentially unbounded
     amount of time. For cases where the author prefers to execute the callback
     within an idle period, but requires a time bound within which it can be
     executed, the author can provide the <code>timeout</code> property in the <code>options</code>
-    argument to <code>requestIdleCallback</code>: if the specified timeout is reached
+    argument to {{Window/requestIdleCallback()}}: if the specified timeout is reached
     before the callback is executed within an idle period, a task is queued to
     execute it.</p>
     <p class="note" id='why50'>The maximum deadline of 50ms is derived from
@@ -264,7 +264,7 @@ function doWork(deadline) {
   <section id='window_extensions'>
     <h2>{{Window}} interface extensions</h2>
     <p>The partial interface in the IDL fragment below is used to expose the
-    <code>requestIdleCallback</code> operation on the
+    {{Window/requestIdleCallback()}} operation on the
     {{Window}} object.
     </p>
     <pre class='idl'>
@@ -301,9 +301,9 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
     </ul>
     <section data-dfn-for="Window">
       <h2>The <dfn>requestIdleCallback()</dfn> method</h2>
-      <p>When {{Window/requestIdleCallback}}<code>(callback, options)</code> is
-      invoked with a given <code><dfn>IdleRequestCallback</dfn></code>
-      and optional <code><dfn>IdleRequestOptions</dfn></code>, the user agent
+      <p>When {{Window/requestIdleCallback}}<code>(|callback|, |options|)</code> is
+      invoked with a given <dfn>IdleRequestCallback</dfn>
+      and optional <dfn>IdleRequestOptions</dfn>, the user agent
       MUST run the following steps:</p>
       <ol>
         <li>Let <var>window</var> be this {{Window}} object.</li>
@@ -346,11 +346,11 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
           </ol>
         </li>
       </ol>
-      <p class="note">{{Window/requestIdleCallback}}>
+      <p class="note">{{Window/requestIdleCallback()}}
       only schedules a single callback, which will be executed during a
       single <a>idle period</a>. If the callback cannot complete its work before
       the given <var>deadline</var> then it should call
-      {{Window/requestIdleCallback}}> again
+      {{Window/requestIdleCallback()}} again
       (which may be done from within the callback) to schedule a future callback
       for the continuation of its task, and exit immediately to return control
       back to the <a>event loop</a>.</p>
@@ -359,7 +359,7 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
       <h2>The <dfn>cancelIdleCallback()</dfn> method</h2>
       <p>The {{Window/cancelIdleCallback()}} method is used to cancel a
       previously made request to schedule an idle callback. When
-      {{Window/cancelIdleCallback}}<code>(handle)</code> is invoked, the user agent
+      {{Window/cancelIdleCallback}}<code>(|handle|)</code> is invoked, the user agent
       MUST run the following steps:
       </p>
       <ol>
