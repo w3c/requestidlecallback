@@ -3,53 +3,26 @@
 <head>
   <meta charset="utf-8">
   <title>Cooperative Scheduling of Background Tasks</title>
-  <script src='//www.w3.org/Tools/respec/respec-w3c' async class=
+  <script src='https://www.w3.org/Tools/respec/respec-w3c' async class=
   'remove'>
   </script>
   <script class='remove'>
   var respecConfig = {
-    shortName: "requestidlecallback",
     specStatus: "ED",
-    useExperimentalStyles: true,
-    edDraftURI: "https://w3c.github.io/requestidlecallback/",
     editors: [{
       name: "Ross McIlroy",
-      mailto: "rmcilroy@chromium.org",
       company: "Google Inc.",
       companyURL: "https://google.com/",
       w3cid: "80940"
     }, {
       name: "Ilya Grigorik",
       url: "https://www.igvita.com/",
-      mailto: "igrigorik@gmail.com",
       company: "Google Inc.",
       companyURL: "https://google.com/",
       w3cid: "56102"
     }],
-    wg: "Web Performance Working Group",
-    wgURI: "https://www.w3.org/webperf/",
-    license: 'w3c-software-doc',
-    wgPublicList: "public-web-perf",
-    subjectPrefix: "[RequestIdleCallback]",
-    otherLinks: [{
-      key: 'Repository',
-      data: [{
-        value: 'We are on GitHub.',
-        href: 'https://github.com/w3c/requestidlecallback/'
-      }, {
-        value: 'File a bug.',
-        href: 'https://github.com/w3c/requestidlecallback/issues'
-      }, {
-        value: 'Commit history.',
-        href: 'https://github.com/w3c/requestidlecallback/commits/gh-pages/index.html'
-      }, {
-        value: 'Tests.',
-        href: 'https://w3c-test.org/requestidlecallback/'
-      }, {
-        value: 'Implementation Report.',
-        href: 'http://wpt.fyi/requestidlecallback'
-      }]
-    }],
+    group: "webperf",
+    github: "w3c/requestidlecallback",
     localBiblio:  {
       "RESPONSETIME": {
         title: "Response time in man-computer conversational transactions",
@@ -59,11 +32,11 @@
         date: "December 1968"
       }
     },
-    wgPatentURI:  "https://www.w3.org/2004/01/pp-impl/45211/status"
+    xref: "web-platform",
   };
   </script>
 </head>
-<body>
+<body data-cite="page-visibility-2">
   <section id="abstract">
     <p>This document defines an API that web page authors can use to
     cooperatively schedule background tasks such that they do not introduce
@@ -79,33 +52,6 @@
   <section id="sotd">
     <p>The Web Performance Working Group maintains a <a href="https://w3c-test.org/requestidlecallback/">test suite</a> for the specification. Please see the Working Group's <a href="http://wpt.fyi/requestidlecallback">implementation report</a>. Vendors interested in implementing this document SHOULD join the mailing lists below and take part in the discussions.</p>
   </section>
-  <section>
-    <h2>Dependencies</h2>
-    <p>The terms <dfn data-cite="html#browsing-context">browsing context
-    </dfn>, <dfn data-cite="html#event-loop">event loop</dfn>,
-    <dfn data-cite="html#event-loop-processing-model">event loop processing
-    model</dfn>, <dfn data-cite="html#spin-the-event-loop">spin the event
-    loop</dfn>, <dfn data-cite="html#fully-active">fully active</dfn>,
-    <dfn data-cite="html#concept-task">tasks</dfn>,
-    <dfn data-cite="html#task-source">task source</dfn>,
-    <dfn data-cite="html#task-queue">task queues</dfn>,
-    <dfn data-cite="html#queue-a-task">queue a task</dfn>,
-    <dfn data-cite="html#microtask-queue">microtask queue</dfn>,
-    <dfn data-cite="html#list-of-active-timers">list of active timers</dfn>,
-    <code><dfn data-cite="html#dom-settimeout">setTimeout</dfn></code>,
-    <code><dfn data-cite="html#dom-setinterval">setInterval</dfn></code>,
-    <code><dfn data-cite="html#dom-window-requestanimationframe">requestAnimationFrame</dfn></code> and
-    <dfn data-cite="html#report-the-error">report the error</dfn> are defined
-    in [[!html]].</p>
-    <p>The terms <dfn data-cite="hr-time-2#dfn-current-high-resolution-time">
-    current high resolution time</dfn> and
-    <dfn data-cite="hr-time-2#dom-domhighrestimestamp">DOMHighResTimestamp</dfn>
-    are defined in [[!hr-time-2]].</p>
-    <p>The term <dfn data-cite="WebIDL#dfn-conforming-implementation">
-    conforming implementation</dfn> is defined in [[!WebIDL]].</p>
-    <p>The term <dfn data-cite="page-visibility#dom-document-hidden">
-    hidden</dfn> is defined in [[!page-visibility]].</p>
-  </section>
   <section class="informative">
     <h2>Introduction</h2>
     <p>Web pages often want to execute computation tasks on the browser's event
@@ -115,9 +61,9 @@
     templating and pre-rendering of content likely to become visible in the
     near future. These tasks must share the event loop with other time-critical
     operations, such as reacting to input and performing script-based
-    animations using <a>requestAnimationFrame</a>. These
+    animations using {{AnimationFrameProvider/requestAnimationFrame()}}. These
     background tasks are typically performed by scheduling a callback using
-    <a>setTimeout</a> and running the background task during that
+    {{WindowOrWorkerGlobalScope/setTimeout()}} and running the background task during that
     callback.</p>
     <p>A disadvantage of this approach is that the author of the script has no
     way to inform the user-agent as to whether a given <code>setTimeout</code> callback is
@@ -293,7 +239,7 @@ function doWork(deadline) {
     before the callback is executed within an idle period, a task is queued to
     execute it.</p>
     <p class="note" id='why50'>The maximum deadline of 50ms is derived from
-    studies [[!RESPONSETIME]] which show that that a response to user input
+    studies [[RESPONSETIME]] which show that that a response to user input
     within 100ms is generally perceived as instantaneous to humans. Capping
     idle deadlines to 50ms means that even if the user input occurs immediately
     after the idle task has begun, the user agent still has a remaining 50ms in
@@ -316,11 +262,11 @@ function doWork(deadline) {
     </dl>
   </section>
   <section id='window_extensions'>
-    <h2><code>Window</code> interface extensions</h2>
+    <h2>{{Window}} interface extensions</h2>
     <p>The partial interface in the IDL fragment below is used to expose the
     <code>requestIdleCallback</code> operation on the
-    <code><dfn data-cite="HTML5#the-window-object">Window</dfn></code> object.
-    [[!HTML5]]</p>
+    {{Window}} object.
+    </p>
     <pre class='idl'>
 partial interface Window {
   unsigned long requestIdleCallback(IdleRequestCallback callback, optional IdleRequestOptions options = {});
@@ -338,30 +284,29 @@ dictionary IdleRequestOptions {
 
 callback IdleRequestCallback = undefined (IdleDeadline deadline);
     </pre>
-    <p>Each <a>Window</a> has:</p>
+    <p>Each {{Window}} has:</p>
     <ul>
       <li>A <dfn>list of idle request callbacks</dfn>. The list MUST be
       initially empty and each entry in this list is identified by a number,
-      which MUST be unique within the list for the lifetime of the <code>Window</code>
+      which MUST be unique within the list for the lifetime of the {{Window}}
       object.</li>
       <li>A <dfn>list of runnable idle callbacks</dfn>. The list MUST be
       initially empty and each entry in this list is identified by a number,
-      which MUST be unique within the list of the lifetime of the <code>Window</code>
+      which MUST be unique within the list of the lifetime of the {{Window}}
       object.</li>
       <li>An <dfn>idle callback identifier</dfn>, which is a number which MUST
       initially be zero.</li>
       <li>A <dfn>last idle period deadline</dfn>, which is a
-      <a>DOMHighResTimeStamp</a> which MUST initially be zero.
+      {{DOMHighResTimeStamp}} which MUST initially be zero.
     </ul>
-    <section data-link-for="Window">
-      <h2>The <code><dfn data-dfn-for="Window">requestIdleCallback</dfn></code>
-      method</h2>
-      <p>When <a>requestIdleCallback</a><code>(callback, options)</code> is
+    <section data-dfn-for="Window">
+      <h2>The <dfn>requestIdleCallback()</dfn> method</h2>
+      <p>When {{Window/requestIdleCallback}}<code>(callback, options)</code> is
       invoked with a given <code><dfn>IdleRequestCallback</dfn></code>
       and optional <code><dfn>IdleRequestOptions</dfn></code>, the user agent
       MUST run the following steps:</p>
       <ol>
-        <li>Let <var>window</var> be this <code>Window</code> object.</li>
+        <li>Let <var>window</var> be this {{Window}} object.</li>
         <li>Increment the <var>window</var>'s <a>idle callback identifier</a>
         by one.</li>
         <li>Let <var>handle</var> be the current value of <var>window</var>'s
@@ -401,25 +346,24 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
           </ol>
         </li>
       </ol>
-      <p class="note"><a>requestIdleCallback</a>
+      <p class="note">{{Window/requestIdleCallback}}>
       only schedules a single callback, which will be executed during a
       single <a>idle period</a>. If the callback cannot complete its work before
       the given <var>deadline</var> then it should call
-      <a>requestIdleCallback</a> again
+      {{Window/requestIdleCallback}}> again
       (which may be done from within the callback) to schedule a future callback
       for the continuation of its task, and exit immediately to return control
       back to the <a>event loop</a>.</p>
     </section>
-    <section data-link-for="Window">
-      <h2>The <code><dfn data-dfn-for="Window">cancelIdleCallback</dfn></code>
-      method</h2>
-      <p>The <a>cancelIdleCallback</a> method is used to cancel a
+    <section data-dfn-for="Window">
+      <h2>The <dfn>cancelIdleCallback()</dfn> method</h2>
+      <p>The {{Window/cancelIdleCallback()}} method is used to cancel a
       previously made request to schedule an idle callback. When
-      <a>cancelIdleCallback</a><code>(handle)</code> is invoked, the user agent
+      {{Window/cancelIdleCallback}}<code>(handle)</code> is invoked, the user agent
       MUST run the following steps:
       </p>
       <ol>
-        <li>Let <var>window</var> be this <code>Window</code> object.</li>
+        <li>Let <var>window</var> be this {{Window}} object.</li>
         <li>Find the entry in either the <var>window</var>'s <a>list of idle
         request callbacks</a> or <a>list of runnable idle callbacks</a> that is
         associated with the value <var>handle</var>.
@@ -429,26 +373,26 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
         callbacks</a>.
         </li>
       </ol>
-      <p class='note'><a>cancelIdleCallback</a>
+      <p class='note'>{{Window/cancelIdleCallback()}}
       might be invoked for an entry in <var>window</var>'s <a>list of
       idle request callbacks</a> or the <a>list of runnable idle callbacks</a>.
       In either case the entry should be removed from the list so that the
       callback does not run.</p>
     </section>
     <section data-dfn-for="IdleDeadline">
-      <h2>The <code><dfn>IdleDeadline</dfn></code> interface</h2>
+      <h2>The <dfn>IdleDeadline</dfn> interface</h2>
       <p>Each <a>IdleDeadline</a> has an associated <dfn>time</dfn>
-      which holds a <a>DOMHighResTimeStamp</a> representing the absolute time in
+      which holds a {{DOMHighResTimeStamp}} representing the absolute time in
       milliseconds of the deadline. This MUST be populated when the
       <a>IdleDeadline</a> is created.</p>
-      <p>When the <code><dfn>timeRemaining</dfn>()</code> method is invoked on
+      <p>When the <dfn>timeRemaining()</dfn> method is invoked on
       an <a>IdleDeadline</a> object it MUST return the remaining duration before
-      the deadline expires as a <a>DOMHighResTimeStamp</a>, which SHOULD be
+      the deadline expires as a {{DOMHighResTimeStamp}}, which SHOULD be
       enough to allow measurement while preventing timing attack - see
       "Privacy and Security" section of [[HR-TIME]]. This value is calculated
       by performing the following steps:</p>
       <ol>
-        <li>Let <var>now</var> be a <a>DOMHighResTimeStamp</a> representing
+        <li>Let <var>now</var> be a {{DOMHighResTimeStamp}} representing
         <a>current high resolution time</a> in milliseconds.</li>
         <li>Let <var>deadline</var> be the <a>time</a> associated with the
         <a>IdleDeadline</a> object.</li>
@@ -474,7 +418,7 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
     <section>
       <h2>Start an idle period algorithm</h2>
       <p>The <dfn>start an idle period algorithm</dfn>, which is called
-      by the <a>event loop processing model</a> when it determines that
+      by the <a data-cite="html#event-loop-processing-model">event loop processing model</a> when it determines that
       the <a>event loop</a> is otherwise idle:</p>
       <ol>
         <li>Let <var>last_deadline</var> be the <a>last idle period deadline</a>
@@ -485,8 +429,7 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
         be delayed, return from this algorithm.
           <p class='note'>This is intended to allow user agents to delay the
           start of idle periods as needed to optimise the power usage of the
-          device. For example, if the <code>Document</code>'s <a>hidden</a>
-          attribute ([[!page-visibility]]) is <code>true</code> then the user agent can
+          device. For example, if the {{Document}} is [=Document/hidden=] then the user agent can
           throttle idle period generation, for example limiting the Document to
           one idle period every 10 seconds to optimize for power usage.</p>
         </li>
@@ -497,9 +440,9 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
         delayed even if a callback runs for the whole time period from
         <var>now</var> to <var>deadline</var>. As such, it should be set to the
         minimum of: the closest timeout in the <a>list of active timers</a> as
-        set via <a>setTimeout</a> and <a>setInterval</a>; the scheduled
+        set via {{WindowOrWorkerGlobalScope/setTimeout()}} and {{WindowOrWorkerGlobalScope/setInterval()}}; the scheduled
         runtime for pending animation callbacks posted via
-        <a>requestAnimationFrame</a>; pending internal timeouts such
+        {{AnimationFrameProvider/requestAnimationFrame()}}; pending internal timeouts such
         as deadlines to start rendering the next frame, process audio or any
         other internal task the user agent deems important.</li>
         <li>If <var>deadline</var> - <var>now</var> is greater than 50ms, then
@@ -530,7 +473,7 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
       <div class="note">
         <p>The time between <var>now</var> and <var>deadline</var> is referred
         to as the <dfn>idle period</dfn>. There can only be one idle period
-        active at a given time for any given <code>window</code>. The idle period can end
+        active at a given time for any given {{Window}}. The idle period can end
         early if the user agent determines that it is no longer idle. If so,
         the next idle period cannot start until after <var>deadline</var>.</p>
       </div>
@@ -552,8 +495,7 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
             <var>deadline</var> and set the <a>timeout</a> associated with
             <var>deadlineArg</var> to <code>false</code>.</li>
             <li>Call <var>callback</var> with <var>deadlineArg</var> as its
-            argument. If an uncaught runtime script error occurs, then <a>report
-            the error</a>.</li>
+            argument. If an uncaught runtime script error occurs, then [=report the exception=].</li>
             <li>If <var>window</var>'s <a>list of runnable idle callbacks</a>
             is not empty, <a>queue a task</a> which performs the steps in the
             <a>invoke idle callbacks algorithm</a> with <var>deadline</var>
@@ -587,8 +529,7 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
             <var>now</var> and set the <a>timeout</a> associated with
             <var>deadlineArg</var> to <code>true</code>.</li>
             <li>Call <var>callback</var> with <var>deadlineArg</var> as its
-            argument. If an uncaught runtime script error occurs, then <a>report
-            the error</a>.</li>
+            argument. If an uncaught runtime script error occurs, then [=report the exception=].</li>
           </ol>
         </li>
       </ol>
