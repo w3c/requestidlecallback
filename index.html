@@ -37,7 +37,7 @@
   };
   </script>
 </head>
-<body data-cite="page-visibility-2">
+<body>
   <section id="abstract">
     <p>This document defines an API that web page authors can use to
     cooperatively schedule background tasks such that they do not introduce
@@ -428,7 +428,7 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
         return from this algorithm.
         <li>Optionally, if the user agent determines the idle period should
         be delayed, return from this algorithm.
-          <p class='note'>This is intended to allow user agents to delay the
+          <p class='note' data-cite="page-visibility-2">This is intended to allow user agents to delay the
           start of idle periods as needed to optimise the power usage of the
           device. For example, if the {{Document}} is [=Document/hidden=] then the user agent can
           throttle idle period generation, for example limiting the Document to
