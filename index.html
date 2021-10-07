@@ -431,25 +431,6 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
         throttle idle period generation, for example limiting the Document to
         one idle period every 10 seconds to optimize for power usage.</p>
         </li>
-
-        <li>Let <var>now</var> be the current time.</li>
-        <li>Let <var>deadline</var> be a time in the future until which the
-        browser expects to remain idle. The user agent SHOULD choose
-        <var>deadline</var> to ensure that no time-critical tasks will be
-        delayed even if a callback runs for the whole time period from
-        <var>now</var> to <var>deadline</var>. As such, it should be set to the
-        minimum of: the closest timeout in the <a>list of active timers</a> as
-        set via {{WindowOrWorkerGlobalScope/setTimeout()}} and {{WindowOrWorkerGlobalScope/setInterval()}}; the scheduled
-        runtime for pending animation callbacks posted via
-        {{AnimationFrameProvider/requestAnimationFrame()}}; pending internal timeouts such
-        as deadlines to start rendering the next frame, process audio or any
-        other internal task the user agent deems important.</li>
-        <li>If <var>deadline</var> - <var>now</var> is greater than 50ms, then
-        cap <var>deadline</var> by setting it to be <var>now</var> + 50ms.
-          <p class='note'>The cap of 50ms in the future is to ensure
-          responsiveness to new user input within the threshold of human
-          perception.</p>
-        </li>
         <li>Let <var>pending_list</var> be <var>window</var>'s <a>list of idle
         request callbacks</a>.
         </li>
@@ -468,7 +449,7 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
       <p>The <a>task source</a> for these <a>tasks</a> is the <dfn>idle-task
       task source</dfn>.</p>
       <div class="note">
-        <p>The time between <var>now</var> and <var>deadline</var> is referred
+        <p>The time between now and the deadline is referred
         to as the <dfn>idle period</dfn>. There can only be one idle period
         active at a given time for any given {{Window}}. The idle period can end
         early if the user agent determines that it is no longer idle. If so,
