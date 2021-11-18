@@ -426,7 +426,7 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
         be delayed, return from this algorithm.
         <p class='note' data-cite="page-visibility-2">This is intended to allow user agents to delay the
         start of idle periods as needed to optimise the power usage of the
-        device. For example, if the {{Document}}'s is {{Document/hidden}} then the user agent can
+        device. For example, if the {{Document}}'s [=Document/visibility state=] is "hidden" then the user agent can
         throttle idle period generation, for example limiting the Document to
         one idle period every 10 seconds to optimize for power usage.</p>
         </li>
