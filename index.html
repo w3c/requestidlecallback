@@ -382,9 +382,9 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
     </section>
     <section data-dfn-for="IdleDeadline">
       <h2>The <dfn>IdleDeadline</dfn> interface</h2>
-      <p>Each <a>IdleDeadline</a> has an associated <dfn>get deadline time</dfn>, an algorithm that
-      returning a {{DOMHighResTimeStamp}} representing the absolute time in
-      milliseconds of the deadline, initially set to return zero.
+      <p>Each {{IdleDeadline}} has an associated <dfn>get deadline time</dfn> algorithm, which
+      returns a {{DOMHighResTimeStamp}} representing the absolute time in
+      milliseconds of the deadline. The deadline is initially set to return zero.
       <p>When the <dfn>timeRemaining()</dfn> method is invoked on
       an <a>IdleDeadline</a> object it MUST return the remaining duration before
       the deadline expires as a {{DOMHighResTimeStamp}}, which SHOULD be
