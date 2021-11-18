@@ -394,8 +394,7 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
       <ol>
         <li>Let <var>now</var> be a {{DOMHighResTimeStamp}} representing
         <a>current high resolution time</a> in milliseconds.</li>
-        <li>Let <var>deadline</var> be the result of calling the <a>get deadline time</a>
-        algorithm associated with the <a>IdleDeadline</a> object.</li>
+        <li>Let <var>deadline</var> be the result of calling {{IdleDeadline}}'s <a>get deadline time</a> algorithm.</li>
         <li>Let <var>timeRemaining</var> be <var>deadline</var> -
         <var>now</var>.</li>
         <li>If <var>timeRemaining</var> is negative, set it to 0.</li>
