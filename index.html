@@ -382,10 +382,9 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
     </section>
     <section data-dfn-for="IdleDeadline">
       <h2>The <dfn>IdleDeadline</dfn> interface</h2>
-      <p>Each <a>IdleDeadline</a> has an associated <dfn>time</dfn>
-      which holds a {{DOMHighResTimeStamp}} representing the absolute time in
-      milliseconds of the deadline. This MUST be populated when the
-      <a>IdleDeadline</a> is created.</p>
+      <p>Each {{IdleDeadline}} has an associated <dfn>get deadline time</dfn> algorithm, which
+      returns a {{DOMHighResTimeStamp}} representing the absolute time in
+      milliseconds of the deadline. The deadline is initially set to return zero.
       <p>When the <dfn>timeRemaining()</dfn> method is invoked on
       an <a>IdleDeadline</a> object it MUST return the remaining duration before
       the deadline expires as a {{DOMHighResTimeStamp}}, which SHOULD be
@@ -395,12 +394,9 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
       <ol>
         <li>Let <var>now</var> be a {{DOMHighResTimeStamp}} representing
         <a>current high resolution time</a> in milliseconds.</li>
-        <li>Let <var>deadline</var> be the <a>time</a> associated with the
-        <a>IdleDeadline</a> object.</li>
+        <li>Let <var>deadline</var> be the result of calling {{IdleDeadline}}'s <a>get deadline time</a> algorithm.</li>
         <li>Let <var>timeRemaining</var> be <var>deadline</var> -
         <var>now</var>.</li>
-        <li>If the user agent now has a time-critical task pending,
-        set <var>timeRemaining</var> to 0.</li>
         <li>If <var>timeRemaining</var> is negative, set it to 0.</li>
         <li>Return <var>timeRemaining</var>.</li>
       </ol>
@@ -418,39 +414,21 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
     <h2>Processing</h2>
     <section>
       <h2>Start an idle period algorithm</h2>
-      <p>The <dfn>start an idle period algorithm</dfn>, which is called
-      by the <a data-cite="html#event-loop-processing-model">event loop processing model</a> when it determines that
-      the <a>event loop</a> is otherwise idle:</p>
+      <p>To <dfn export>start an idle period</dfn> given {{Window}} <var>window</var> and
+      <var>getDeadline</var>, an algorithm that returns a {{DOMHighResTimeStamp}}: [[HR-TIME]]
+
+      <p class="note">The algorithm is called
+      by the <a data-cite="html#event-loop-processing-model">event loop processing model</a>
+      when it determines that the <a>event loop</a> is otherwise idle.</p>
+
       <ol>
-        <li>Let <var>last_deadline</var> be the <a>last idle period deadline</a>
-        associated with <var>window</var>
-        <li>If <var>last_deadline</var> is greater than the current time,
-        return from this algorithm.
         <li>Optionally, if the user agent determines the idle period should
         be delayed, return from this algorithm.
-          <p class='note' data-cite="page-visibility-2">This is intended to allow user agents to delay the
-          start of idle periods as needed to optimise the power usage of the
-          device. For example, if the {{Document}} is [=Document/hidden=] then the user agent can
-          throttle idle period generation, for example limiting the Document to
-          one idle period every 10 seconds to optimize for power usage.</p>
-        </li>
-        <li>Let <var>now</var> be the current time.</li>
-        <li>Let <var>deadline</var> be a time in the future until which the
-        browser expects to remain idle. The user agent SHOULD choose
-        <var>deadline</var> to ensure that no time-critical tasks will be
-        delayed even if a callback runs for the whole time period from
-        <var>now</var> to <var>deadline</var>. As such, it should be set to the
-        minimum of: the closest timeout in the <a>list of active timers</a> as
-        set via {{WindowOrWorkerGlobalScope/setTimeout()}} and {{WindowOrWorkerGlobalScope/setInterval()}}; the scheduled
-        runtime for pending animation callbacks posted via
-        {{AnimationFrameProvider/requestAnimationFrame()}}; pending internal timeouts such
-        as deadlines to start rendering the next frame, process audio or any
-        other internal task the user agent deems important.</li>
-        <li>If <var>deadline</var> - <var>now</var> is greater than 50ms, then
-        cap <var>deadline</var> by setting it to be <var>now</var> + 50ms.
-          <p class='note'>The cap of 50ms in the future is to ensure
-          responsiveness to new user input within the threshold of human
-          perception.</p>
+        <p class='note' data-cite="page-visibility-2">This is intended to allow user agents to delay the
+        start of idle periods as needed to optimise the power usage of the
+        device. For example, if the {{Document}}'s [=Document/visibility state=] is "hidden" then the user agent can
+        throttle idle period generation, for example limiting the Document to
+        one idle period every 10 seconds to optimize for power usage.</p>
         </li>
         <li>Let <var>pending_list</var> be <var>window</var>'s <a>list of idle
         request callbacks</a>.
@@ -463,16 +441,14 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
         <li>Clear <var>pending_list</var>.</li>
         <li><a>Queue a task</a> on the queue associated with the idle-task
         <a>task source</a>, which performs the steps defined in the <a>invoke
-        idle callbacks algorithm</a> with <var>deadline</var> and
-        <var>window</var> as parameters.
+        idle callbacks algorithm</a> with <var>window</var> and <var>getDeadline</var> as
+        parameters.
         </li>
-        <li>Save <var>deadline</var> as the <a>last idle period deadline</a>
-        associated with <var>window</var>.</li>
       </ol>
       <p>The <a>task source</a> for these <a>tasks</a> is the <dfn>idle-task
       task source</dfn>.</p>
       <div class="note">
-        <p>The time between <var>now</var> and <var>deadline</var> is referred
+        <p>The time between now and the deadline is referred
         to as the <dfn>idle period</dfn>. There can only be one idle period
         active at a given time for any given {{Window}}. The idle period can end
         early if the user agent determines that it is no longer idle. If so,
@@ -481,25 +457,24 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
     </section>
     <section>
       <h2>Invoke idle callbacks algorithm</h2>
-      <p>The <dfn>invoke idle callbacks algorithm</dfn>:</p>
+      <p>To <dfn>invoke idle callbacks algorithm</dfn> given {{Window}} <var>window</var> and
+      <var>getDeadline</var>, an algorithm returning a {{DOMHighResTimeStamp}}: [[HR-TIME]].</p>
       <ol>
         <li>If the user-agent believes it should end the idle period early due
         to newly scheduled high-priority work, return from the algorithm.
         <li>Let <var>now</var> be the current time.</li>
-        <li>If <var>now</var> is less than <var>deadline</var> and the
+        <li>If <var>now</var> is less than the result of calling <var>getDeadline</var> and the
         <var>window</var>'s <a>list of runnable idle callbacks</a> is not empty:
           <ol>
             <li>Pop the top <var>callback</var> from <var>window</var>'s
             <a>list of runnable idle callbacks</a>.</li>
-            <li>Let <var>deadlineArg</var> be a new <a>IdleDeadline</a>.
-            Set the <a>time</a> associated with <var>deadlineArg</var> to
-            <var>deadline</var> and set the <a>timeout</a> associated with
-            <var>deadlineArg</var> to <code>false</code>.</li>
+            <li>Let <var>deadlineArg</var> be a new <a>IdleDeadline</a> whose 
+            </a> is <var>getDeadline</var>.</li>
             <li>Call <var>callback</var> with <var>deadlineArg</var> as its
             argument. If an uncaught runtime script error occurs, then [=report the exception=].</li>
             <li>If <var>window</var>'s <a>list of runnable idle callbacks</a>
             is not empty, <a>queue a task</a> which performs the steps in the
-            <a>invoke idle callbacks algorithm</a> with <var>deadline</var>
+            <a>invoke idle callbacks algorithm</a> with <var>getDeadline</var>
             and <var>window</var> as a parameters and return from this
             algorithm</li>
           </ol>
@@ -526,8 +501,8 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
             callbacks</a>.</var></li>
             <li>Let <var>now</var> be the current time.</li>
             <li>Let <var>deadlineArg</var> be a new <a>IdleDeadline</a>.
-            Set the <a>time</a> associated with <var>deadlineArg</var> to
-            <var>now</var> and set the <a>timeout</a> associated with
+            Set the <a>get deadline time</a> algorithm associated with <var>deadlineArg</var> to
+            an algorithm returning <var>now</var> and set the <a>timeout</a> associated with
             <var>deadlineArg</var> to <code>true</code>.</li>
             <li>Call <var>callback</var> with <var>deadlineArg</var> as its
             argument. If an uncaught runtime script error occurs, then [=report the exception=].</li>
