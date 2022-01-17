@@ -297,8 +297,6 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
       object.</li>
       <li>An <dfn>idle callback identifier</dfn>, which is a number which MUST
       initially be zero.</li>
-      <li>A <dfn>last idle period deadline</dfn>, which is a
-      {{DOMHighResTimeStamp}} which MUST initially be zero.
     </ul>
     <section data-dfn-for="Window">
       <h2>The <dfn>requestIdleCallback()</dfn> method</h2>
@@ -414,7 +412,7 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
     <h2>Processing</h2>
     <section>
       <h2>Start an idle period algorithm</h2>
-      <p>To <dfn export>start an idle period</dfn> given {{Window}} <var>window</var> and
+      <p>To <dfn class="export">start an idle period</dfn> given {{Window}} <var>window</var> and
       <var>getDeadline</var>, an algorithm that returns a {{DOMHighResTimeStamp}}: [[HR-TIME]]
 
       <p class="note">The algorithm is called
@@ -445,8 +443,6 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
         parameters.
         </li>
       </ol>
-      <p>The <a>task source</a> for these <a>tasks</a> is the <dfn>idle-task
-      task source</dfn>.</p>
       <div class="note">
         <p>The time between now and the deadline is referred
         to as the <dfn>idle period</dfn>. There can only be one idle period
@@ -512,7 +508,7 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
     </section>
   </section>
   <section>
-    <h2>Privacy and Security</h2>
+    <h2>Security Considerations</h2>
     <p>When an idle callback is scheduled the user agent provides an estimate
     of how long it expects to remain idle. This information can be used to
     estimate the time taken by other application tasks and related browser work
@@ -524,6 +520,10 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
     of the time estimates returned by the <a>IdleDeadline</a> interface should
     be set to the same 5 microsecond minimum as the <code>Performance</code> interface
     defined in [[HR-TIME]].</p>
+  </section>
+  <section>
+    <h2>Privacy Considerations</h2>
+    <p>See Security Considerations.
   </section>
   <section id="acknowledgements" class="appendix">
     <h2>Acknowledgments</h2>
