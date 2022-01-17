@@ -518,8 +518,9 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
     information to compute "remaining time" within any callback.</p>
     <p>To mitigate cache and statistical fingerprinting attacks, the resolution
     of the time estimates returned by the <a>IdleDeadline</a> interface should
-    be [=coarsen time|coarsened=] to ensure it is protected by the
-    [=environment settings object/cross-origin isolated capability=]. [[HR-TIME]]</p>
+    be [=coarsen time|coarsened=] based on
+    [=environment settings object/cross-origin isolated capability=] to ensure this API is not
+    exposing more information than what's exposed by other web-exposed timers. [[HR-TIME]]</p>
   </section>
   <section>
     <h2>Security Considerations</h2>
