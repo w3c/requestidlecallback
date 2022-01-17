@@ -508,7 +508,7 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
     </section>
   </section>
   <section>
-    <h2>Security Considerations</h2>
+    <h2>Privacy Considerations</h2>
     <p>When an idle callback is scheduled the user agent provides an estimate
     of how long it expects to remain idle. This information can be used to
     estimate the time taken by other application tasks and related browser work
@@ -518,12 +518,12 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
     information to compute "remaining time" within any callback.</p>
     <p>To mitigate cache and statistical fingerprinting attacks, the resolution
     of the time estimates returned by the <a>IdleDeadline</a> interface should
-    be set to the same 5 microsecond minimum as the <code>Performance</code> interface
-    defined in [[HR-TIME]].</p>
+    be [=coarsen time|coarsened=] to ensure it is protected by the
+    [=environment settings object/cross-origin isolated capability=]. [[HR-TIME]]</p>
   </section>
   <section>
-    <h2>Privacy Considerations</h2>
-    <p>See Security Considerations.
+    <h2>Security Considerations</h2>
+    <p>TBD
   </section>
   <section id="acknowledgements" class="appendix">
     <h2>Acknowledgments</h2>
