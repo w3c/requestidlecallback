@@ -10,6 +10,12 @@
   var respecConfig = {
     specStatus: "ED",
     editors: [{
+      name: "Scott Haseley",
+      company: "Google Inc.",
+      companyURL: "https://google.com/",
+      w3cid: "122093"
+    }],
+    formerEditors: [{
       name: "Ross McIlroy",
       company: "Google Inc.",
       companyURL: "https://google.com/",
@@ -466,7 +472,7 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
           <ol>
             <li>Pop the top <var>callback</var> from <var>window</var>'s
             <a>list of runnable idle callbacks</a>.</li>
-            <li>Let <var>deadlineArg</var> be a new <a>IdleDeadline</a> whose 
+            <li>Let <var>deadlineArg</var> be a new <a>IdleDeadline</a> whose
             </a> is <var>getDeadline</var>.</li>
             <li>Call <var>callback</var> with <var>deadlineArg</var> as its
             argument. If an uncaught runtime script error occurs, then [=report the exception=].</li>
@@ -534,7 +540,7 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
     this specification: Sami Kyostila, Alex Clarke, Boris Zbarsky, Marcos
     Caceres, Jonas Sicking, Robert O'Callahan, David Baron, Todd Reifsteck,
     Tobin Titus, Elliott Sprehn, Tetsuharu OHZEKI, Lon Ingram, Domenic Denicola,
-    Philippe Le Hegaret and Anne van Kesteren .</p>
+    Philippe Le Hegaret and Anne van Kesteren. </p>
   </section>
 </body>
 </html>
