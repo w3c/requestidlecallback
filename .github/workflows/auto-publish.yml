@@ -1,9 +1,7 @@
 on:
   push:
-    branches:
-      - main
+    branches: [gh-pages]
   pull_request: {}
-
 jobs:
   validate-and-publish:
     name: Validate and Publish
@@ -12,6 +10,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: w3c/spec-prod@v2
         with:
+          TOOLCHAIN: respec
+          SOURCE: index.html
           VALIDATE_LINKS: true
           W3C_ECHIDNA_TOKEN: ${{ secrets.ECHIDNA_TOKEN }}
           W3C_WG_DECISION_URL: "https://lists.w3.org/Archives/Public/public-web-perf/2021Apr/0005.html"
@@ -19,4 +19,3 @@ jobs:
           W3C_BUILD_OVERRIDE: |
             specStatus: WD
             shortName: requestidlecallback
-            
