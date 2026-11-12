@@ -398,7 +398,8 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
       "Privacy and Security" section of [[HR-TIME]]. This value is calculated
       by performing the following steps:</p>
       <ol>
-        <li>Let <var>now</var> be the [=coarsened shared current time=] given
+        <li>Let <var>now</var> be the
+        <a data-cite="!HR-TIME#dfn-coarsened-shared-current-time">coarsened shared current time</a> given
         [=this=]'s [=relevant settings object=]'s [=environment settings object/cross-origin isolated capability=].</li>
         <li>Let <var>deadline</var> be the result of calling {{IdleDeadline}}'s <a>get deadline time</a> algorithm.</li>
         <li>Let <var>timeRemaining</var> be <var>deadline</var> -
@@ -466,7 +467,8 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
       <ol>
         <li>If the user-agent believes it should end the idle period early due
         to newly scheduled high-priority work, return from the algorithm.
-        <li>Let <var>now</var> be the [=coarsened shared current time=] given
+        <li>Let <var>now</var> be the
+        <a data-cite="!HR-TIME#dfn-coarsened-shared-current-time">coarsened shared current time</a> given
         <var>window</var>'s [=relevant settings object=]'s [=environment settings object/cross-origin isolated capability=].</li>
         <li>If <var>now</var> is less than the result of calling <var>getDeadline</var> and the
         <var>window</var>'s <a>list of runnable idle callbacks</a> is not empty:
@@ -503,7 +505,8 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
             <li>Remove <var>callback</var> from both <var>window</var>'s <a>list
             of idle request callbacks</a> and the <a>list of runnable idle
             callbacks</a>.</var></li>
-            <li>Let <var>now</var> be the [=coarsened shared current time=] given
+            <li>Let <var>now</var> be the
+            <a data-cite="!HR-TIME#dfn-coarsened-shared-current-time">coarsened shared current time</a> given
             <var>window</var>'s [=relevant settings object=]'s [=environment settings object/cross-origin isolated capability=].</li>
             <li>Let <var>deadlineArg</var> be a new <a>IdleDeadline</a>.
             Set the <a>get deadline time</a> algorithm associated with <var>deadlineArg</var> to
