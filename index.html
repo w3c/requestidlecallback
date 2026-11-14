@@ -283,7 +283,7 @@ partial interface Window {
 };
 
 dictionary IdleRequestOptions {
-  unsigned long timeout;
+  unsigned long timeout = 0;
 };
 
 [Exposed=Window] interface IdleDeadline {
@@ -309,9 +309,9 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
     <section data-dfn-for="Window">
       <h2>The <dfn>requestIdleCallback()</dfn> method</h2>
       <p>When {{Window/requestIdleCallback}}<code>(|callback|, |options|)</code> is
-      invoked with a given <dfn>IdleRequestCallback</dfn>
-      and optional <dfn>IdleRequestOptions</dfn>, the user agent
-      MUST run the following steps:</p>
+      invoked with a given <dfn>IdleRequestCallback</dfn> and
+      <dfn>IdleRequestOptions</dfn>, the user agent MUST run the following
+      steps:</p>
       <ol>
         <li>Let <var>window</var> be this {{Window}} object.</li>
         <li>Increment the <var>window</var>'s <a>idle callback identifier</a>
@@ -328,9 +328,9 @@ callback IdleRequestCallback = undefined (IdleDeadline deadline);
           cancel each other—e.g. if the idle callback is scheduled first, then
           it cancels the timeout callback, and vice versa.</p>
         </li>
-        <li>If the <code><dfn data-dfn-for="IdleRequestOptions">timeout</dfn>
-        </code> property is present in <var>options</var> and has a positive
-        value:
+        <li>Let <var>timeout</var> be <var>options</var>["<code><dfn
+        data-dfn-for="IdleRequestOptions">timeout</dfn></code>"].</li>
+        <li>If <var>timeout</var> is greater than 0:
           <ol>
             <li>Wait for <var>timeout</var> milliseconds.</li>
             <li>Wait until all invocations of this algorithm, whose
